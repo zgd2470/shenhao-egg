@@ -9,11 +9,11 @@ module.exports = (app) => {
   router.get('/', controller.home.index)
   router.get('/custom', controller.web.custonIndex)
 
-  // // 上传图片
-  // router.post('/api/file', controller.file.create)
+  // 上传文件
+  router.post('/api/file', controller.file.create)
 
-  // // 获取图片
-  // router.get('/api/picture/:pmCode', controller.file.download)
+  // 获取文件
+  router.get('/api/file/:pmCode', controller.file.download)
 
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)

@@ -16,7 +16,7 @@ module.exports = (appInfo) => {
       // password
       password: '123456',
       // database
-      database: 'egg',
+      database: 'shenhao',
     },
     // load into app, default is open
     app: true,
@@ -32,15 +32,15 @@ module.exports = (appInfo) => {
   config.cluster = {
     listen: {
       path: '',
-      port: 8000, // 修改端口
+      port: 8080, // 修改端口
     },
   }
 
   // config/config.default.js
   config.multipart = {
     mode: 'file',
-    fileSize: '50mb', // 文件大小
-    whitelist: ['.xlsx', '.xls', '.png', '.jpg', '.jpeg'],
+    fileSize: '500mb', // 文件大小
+    whitelist: ['.xlsx', '.xls', '.png', '.jpg', '.jpeg', '.mp4'],
   }
 
   return {
