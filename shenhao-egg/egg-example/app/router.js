@@ -15,6 +15,18 @@ module.exports = (app) => {
   // 获取文件
   router.get('/api/file/:pmCode', controller.file.download)
 
+  // 编辑和新增视频
+  router.post('/api/setVideoDetail', controller.web.setVideoDetail)
+
+  // 获取列表
+  router.get('/api/getVideoList', controller.web.getVideoList)
+
+  // 获取视屏详情
+  router.get('/api/getVideoDetail', controller.web.getVideoDetail)
+
+  // 删除视频
+  router.get('/api/deleteVideo', controller.web.deleteVideo)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 
