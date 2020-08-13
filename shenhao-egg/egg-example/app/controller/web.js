@@ -169,6 +169,62 @@ class CustomController extends Controller {
       message: '操作成功',
     }
   }
+
+  // 评论
+  async submitComments() {
+    const { body = {} } = this.ctx.request
+    const { videoPmCode, name, content, score } = body
+    const info = {
+      video_pm_code: videoPmCode,
+      name,
+      content,
+      score,
+    }
+    const result = await this.ctx.service.webService.submitComments(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 评论列表
+  async getCommentsList() {
+    const { query } = this.ctx.request
+    const { videoPmCode, current = 1, pageSize = 5 } = query
+
+    const data = await this.ctx.service.webService.getCommentsList({
+      video_pm_code: videoPmCode,
+      current,
+      pageSize,
+    })
+    const newData = {
+      total: data.total || 0,
+      totalScore: data.totalScore || 0,
+      list: data.list.map((info) => {
+        return {
+          pmCode: info.pm_code,
+          name: info.name,
+          content: info.content,
+          score: info.score,
+          createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
+          title: info.title,
+          videoPmCode: info.video_pm_code,
+        }
+      }),
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newData,
+    }
+  }
 }
 
 // eslint-disable-next-line no-undef

@@ -33,6 +33,12 @@ module.exports = (app) => {
   // 观看人数加1
   router.post('/api/videoAddNumber', controller.web.videoAddNumber)
 
+  // 评论
+  router.post('/api/submitComments', controller.web.submitComments)
+
+  // 评论列表
+  router.get('/api/getCommentsList', controller.web.getCommentsList)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 

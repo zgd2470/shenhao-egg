@@ -40,6 +40,76 @@ class WebService extends Service {
     }
   }
 
+  // 评论
+  async submitComments(info) {
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+    const result = await this.app.mysql.insert('comments_table', newInfo)
+    return result.affectedRows === 1
+  }
+
+  // 评论列表
+  async getCommentsList({ video_pm_code, current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'pm_code',
+      'video_pm_code',
+      'name',
+      'content',
+      'score',
+      'create_time',
+    ]
+
+    if (video_pm_code) {
+      where.video_pm_code = video_pm_code
+      sqlWhere += ` and video_pm_code='${video_pm_code}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+    const list = (await this.app.mysql.select('comments_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM comments_table where ${sqlWhere} `,
+    )
+
+    const totalScore = await this.app.mysql.query(
+      `select sum (score) as  totalScore from  comments_table where ${sqlWhere} `,
+    )
+
+    return Promise.all(
+      list.map(async (info) => {
+        const userOption = {
+          where: {
+            pm_code: info.video_pm_code,
+            deleted: 0,
+          },
+          columns: ['title'],
+        }
+        let videoInfo = await this.app.mysql.select('video_table', userOption)
+        videoInfo = JSON.parse(JSON.stringify(videoInfo))[0]
+        return {
+          ...info,
+          title: videoInfo.title,
+        }
+      }),
+    ).then((result) => {
+      return {
+        total: JSON.parse(JSON.stringify(total))[0].total,
+        totalScore: JSON.parse(JSON.stringify(totalScore))[0].totalScore,
+        list: result,
+      }
+    })
+  }
+
   // 获取视频列表
   async getVideoList({ title, isRecommended, current = 1, pageSize = 10 }) {
     let sqlWhere = 'deleted = 0'
@@ -121,6 +191,7 @@ class WebService extends Service {
     )
     return result.affectedRows === 1
   }
+
   // 获取视频路径
   async getVideoPath(pmCode) {
     const option = {
