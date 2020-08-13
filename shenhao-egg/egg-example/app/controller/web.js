@@ -34,6 +34,7 @@ class CustomController extends Controller {
       introduction,
       videoPmCode,
       pmCode,
+      videoPath,
     } = body
     const info = {
       img_pm_code: imgPmCode,
@@ -43,6 +44,7 @@ class CustomController extends Controller {
       introduction,
       video_pm_code: videoPmCode,
       pm_code: pmCode,
+      video_path: videoPath,
     }
     const result = await this.ctx.service.webService.setVideoDetail(info)
     if (!result) {
@@ -61,7 +63,7 @@ class CustomController extends Controller {
   // 视频列表
   async getVideoList() {
     const { query } = this.ctx.request
-    const { title, isRecommended, current, pageSize } = query
+    const { title, isRecommended, current = 1, pageSize = 500 } = query
 
     const data = await this.ctx.service.webService.getVideoList({
       title,
@@ -80,6 +82,8 @@ class CustomController extends Controller {
           title: info.title,
           introduction: info.introduction,
           videoPmCode: info.video_pm_code,
+          videoPath: info.video_path,
+          createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
         }
       }),
     }
@@ -110,6 +114,7 @@ class CustomController extends Controller {
       title: result.title,
       introduction: result.introduction,
       videoPmCode: result.video_pm_code,
+      videoPath: result.video_path,
     }
     this.ctx.body = {
       success: true,
@@ -130,6 +135,35 @@ class CustomController extends Controller {
       }
       return
     }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 获取视频路径
+  async getVideoPath() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result =
+      (await this.ctx.service.webService.getVideoPath(pmCode)) || {}
+
+    const newResult = result.file_path.replace(/app/g, '')
+
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newResult,
+    }
+  }
+
+  // 观看过人数加1
+  async videoAddNumber() {
+    const { body } = this.ctx.request
+    const { pmCode } = body
+
+    await this.ctx.service.webService.videoAddNumber(pmCode)
+
     this.ctx.body = {
       success: true,
       message: '操作成功',

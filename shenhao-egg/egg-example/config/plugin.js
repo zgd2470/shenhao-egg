@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 /** @type Egg.EggPlugin */
 // eslint-disable-next-line no-undef
@@ -13,4 +13,9 @@
 exports.mysql = {
   enable: true,
   package: 'egg-mysql',
-};
+}
+
+exports.cors = {
+  enable: true,
+  package: 'egg-cors',
+}

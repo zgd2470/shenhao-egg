@@ -15,8 +15,8 @@ class WebService extends Service {
       introduction,
       video_pm_code,
       pm_code,
+      videoPath,
     } = info
-    console.log(info)
     if (pm_code) {
       // 编辑
       const options = {
@@ -56,6 +56,8 @@ class WebService extends Service {
       'title',
       'introduction',
       'video_pm_code',
+      'create_time',
+      'video_path',
     ]
 
     if (title) {
@@ -98,6 +100,7 @@ class WebService extends Service {
         'title',
         'introduction',
         'video_pm_code',
+        'video_path',
       ],
     }
     const result = (await this.app.mysql.select('video_table', option)) || []
@@ -117,6 +120,24 @@ class WebService extends Service {
       options,
     )
     return result.affectedRows === 1
+  }
+  // 获取视频路径
+  async getVideoPath(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: ['pm_code', 'file_path'],
+    }
+    const result = (await this.app.mysql.select('file', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
+  }
+
+  // 观看过人数加1
+  async videoAddNumber(pmCode) {
+    return await this.app.mysql.query(
+      `update video_table set number=number+1 where pm_code='${pmCode}'`,
+    )
   }
 }
 module.exports = WebService

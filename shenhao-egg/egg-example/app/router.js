@@ -27,6 +27,12 @@ module.exports = (app) => {
   // 删除视频
   router.get('/api/deleteVideo', controller.web.deleteVideo)
 
+  // 获取路径
+  router.get('/api/getVideoPath', controller.web.getVideoPath)
+
+  // 观看人数加1
+  router.post('/api/videoAddNumber', controller.web.videoAddNumber)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 

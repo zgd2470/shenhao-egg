@@ -11,14 +11,17 @@
     "await-stream-ready": "^1.0.1",
     "dayjs": "^1.8.16",
     "egg": "^2.15.1",
+    "egg-cors": "^2.2.3",
     "egg-mysql": "3.0.0",
     "egg-scripts": "^2.11.0",
+    "koa-range": "^0.3.0",
     "md5": "^2.2.1",
     "moment": "^2.24.0",
     "node-uuid": "1.4.8",
+    "path": "^0.12.7",
     "stream-wormhole": "^1.1.0",
-    "xlsx": "0.15.0",
-    "ts-md5": "^1.2.0"
+    "ts-md5": "^1.2.0",
+    "xlsx": "0.15.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",
