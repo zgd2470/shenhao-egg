@@ -36,8 +36,23 @@ module.exports = (app) => {
   // 评论
   router.post('/api/submitComments', controller.web.submitComments)
 
+  // 登录写死
+  router.post('/api/auth/login', controller.web.login)
+
+  // 退出登录写死
+  router.post('/api/auth/logout', controller.web.logout)
+
+  // 用户信息写死
+  router.get('/api/user/info', controller.web.userInfo)
+
   // 评论列表
   router.get('/api/getCommentsList', controller.web.getCommentsList)
+
+  // 猜你喜欢
+  router.get('/api/getGuessYouLikeList', controller.web.getGuessYouLikeList)
+
+  // 删除评论
+  router.get('/api/deleteComments', controller.web.deleteComments)
 
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)

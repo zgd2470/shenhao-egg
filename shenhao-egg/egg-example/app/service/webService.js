@@ -76,6 +76,7 @@ class WebService extends Service {
       limit: Number(pageSize), // 返回数据量
       offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
     }
+
     const list = (await this.app.mysql.select('comments_table', option)) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM comments_table where ${sqlWhere} `,
@@ -156,6 +157,37 @@ class WebService extends Service {
     }
   }
 
+  // 获取猜你喜欢
+  async getGuessYouLikeList() {
+    const option = {
+      columns: ['pm_code', 'img_pm_code', 'number', 'title', 'create_time'],
+      where: {
+        deleted: 0,
+      },
+      orders: [['number', 'desc']],
+      limit: 3, // 返回数据量
+      offset: 0, // 数据偏移量
+    }
+    const list = (await this.app.mysql.select('video_table', option)) || []
+    return Promise.all(
+      list.map(async (info) => {
+        let total = await this.app.mysql.query(
+          `select COUNT(1) as total FROM comments_table where video_pm_code = '${info.pm_code}' `,
+        )
+        let totalScore = await this.app.mysql.query(
+          `select sum (score) as  totalScore from  comments_table where video_pm_code = '${info.pm_code}' `,
+        )
+        total = JSON.parse(JSON.stringify(total))[0].total || 1
+        totalScore = JSON.parse(JSON.stringify(totalScore))[0].totalScore || 0
+
+        return {
+          ...info,
+          averageScore: (totalScore / total).toFixed(1) || 0,
+        }
+      }),
+    )
+  }
+
   // 获取视屏得到详情
   async getVideoDetail(pmCode) {
     const option = {
@@ -209,6 +241,21 @@ class WebService extends Service {
     return await this.app.mysql.query(
       `update video_table set number=number+1 where pm_code='${pmCode}'`,
     )
+  }
+
+  // 删除评论
+  async deleteComments(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'comments_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
   }
 }
 module.exports = WebService
