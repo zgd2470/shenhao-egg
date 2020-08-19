@@ -250,7 +250,7 @@ class CustomController extends Controller {
     }
   }
 
-  // 个人信息写死
+  // TODO：个人信息写死
   async userInfo() {
     const {} = this.ctx.request
     const userInfo = {
@@ -753,7 +753,7 @@ class CustomController extends Controller {
     }
   }
 
-  // 评论列表
+  // 猜你喜欢
   async getGuessYouLikeList() {
     const data = await this.ctx.service.webService.getGuessYouLikeList()
     const newData = data.map((info) => {
@@ -778,6 +778,227 @@ class CustomController extends Controller {
     const { query } = this.ctx.request
     const { pmCode } = query
     const result = await this.ctx.service.webService.deleteComments(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 常见问题
+  async submitProblem() {
+    const { body = {} } = this.ctx.request
+    const { title, type, answer, pmCode } = body
+    const info = {
+      title,
+      type,
+      answer,
+      pm_code: pmCode,
+    }
+    const result = await this.ctx.service.webService.submitProblem(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 常见问题列表
+  async getProblemList() {
+    const { query } = this.ctx.request
+    const { title, type } = query
+
+    const data = await this.ctx.service.webService.getProblemList(title, type)
+    const newData = data.map((info) => {
+      return {
+        pmCode: info.pm_code,
+        title: info.title,
+        answer: info.answer,
+        type: info.type,
+      }
+    })
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newData,
+    }
+  }
+
+  // 删除常见问题
+  async deleteProblem() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.deleteProblem(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 知识有帮助
+  async giveLike() {
+    if (await this.ctx.service.webService.giveLike()) {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+      }
+      return
+    }
+
+    this.ctx.body = {
+      success: false,
+      message: '操作失败',
+    }
+  }
+
+  // 知识有帮助数量
+  async getGiveLikeCount() {
+    const data = await this.ctx.service.webService.getGiveLikeCount()
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
+    }
+  }
+
+  // 新增发展历程年份
+  async setDevelopmentYear() {
+    const { body = {} } = this.ctx.request
+    const { year } = body
+    const monthArray = [
+      '1月',
+      '2月',
+      '3月',
+      '4月',
+      '5月',
+      '6月',
+      '7月',
+      '8月',
+      '9月',
+      '10月',
+      '11月',
+      '12月',
+    ]
+    const queryResult = await this.ctx.service.webService.queryDevelopmentYear(
+      year,
+    )
+    if (queryResult) {
+      this.ctx.body = {
+        message: '该年份已存在',
+        success: false,
+      }
+      return
+    }
+    const result = await this.ctx.service.webService.setDevelopmentYear({
+      year,
+    })
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    return Promise.all(
+      monthArray.map(async (info) => {
+        return await this.ctx.service.webService.setDevelopmentEvent({
+          month: info,
+          year_pm_code: result.pm_code,
+        })
+      }),
+    ).then(() => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+      }
+    })
+  }
+
+  // 获取发展历程年份
+  async getDevelopmentYear() {
+    const result = await this.ctx.service.webService.getDevelopmentYear()
+    const newResult = result.map((info) => {
+      return {
+        key: info.pm_code,
+        title: info.year,
+      }
+    })
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newResult,
+    }
+  }
+
+  // 获取发展年份事件
+  async getDevelopmentEvent() {
+    const { query } = this.ctx.request
+    const { yearPmCode } = query
+    const result = await this.ctx.service.webService.getDevelopmentEvent(
+      yearPmCode,
+    )
+    const newResult = result.map((info) => {
+      return {
+        pmCode: info.pm_code,
+        month: info.month,
+        event: info.event || '',
+      }
+    })
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newResult,
+    }
+  }
+
+  // 编辑 新增发展年份事件
+  async setDevelopmentEvent() {
+    const { body = {} } = this.ctx.request
+    const { pmCode, month, event, yearPmCode } = body
+    const info = {
+      pm_code: pmCode,
+      month,
+      event,
+      year_pm_code: yearPmCode,
+    }
+    const result = await this.ctx.service.webService.setDevelopmentEvent(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 删除历程年份
+  async deleteDevelopmentYear() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.deleteDevelopmentYear(pmCode)
     if (!result) {
       this.ctx.body = {
         success: false,

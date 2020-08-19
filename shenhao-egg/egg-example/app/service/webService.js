@@ -47,6 +47,28 @@ class WebService extends Service {
     return result.affectedRows === 1
   }
 
+  // 常见问题
+  async submitProblem(info) {
+    if (info.pm_code) {
+      // 编辑
+      const options = {
+        where: {
+          pm_code: info.pm_code,
+        },
+      }
+      const newInfo = await this.ctx.service.fillUtil.fillModifyRecord(info)
+      const result = await this.app.mysql.update(
+        'problem_table',
+        newInfo,
+        options,
+      )
+      return result.affectedRows === 1
+    }
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+    const result = await this.app.mysql.insert('problem_table', newInfo)
+    return result.affectedRows === 1
+  }
+
   // 评论列表
   async getCommentsList({ video_pm_code, current = 1, pageSize = 10 }) {
     let sqlWhere = 'deleted = 0'
@@ -256,6 +278,156 @@ class WebService extends Service {
       options,
     )
     return result.affectedRows === 1
+  }
+
+  // 常见问题列表
+  async getProblemList(title, type) {
+    const where = {
+      deleted: 0,
+    }
+
+    if (title) {
+      where.title = title
+    }
+
+    if (type) {
+      where.type = type
+    }
+
+    const option = {
+      columns: ['title', 'answer', 'type', 'pm_code'],
+      where,
+      orders: [['create_time', 'desc']],
+    }
+    return (await this.app.mysql.select('problem_table', option)) || []
+  }
+
+  // 删除常见问题
+  async deleteProblem(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'problem_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 知识有帮助
+  async giveLike() {
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord({})
+    const result = await this.app.mysql.insert('give_like_table', newInfo)
+    return result.affectedRows === 1
+  }
+
+  // 知识有帮助数量
+  async getGiveLikeCount() {
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM give_like_table where deleted = 0 `,
+    )
+    return JSON.parse(JSON.stringify(total))[0].total
+  }
+
+  // 查询发展年份是否存在
+  async queryDevelopmentYear(year) {
+    const result = await this.app.mysql.get('development_year_table', {
+      year,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 新增年份
+  async setDevelopmentYear(info) {
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+    const result = await this.app.mysql.insert(
+      'development_year_table',
+      newInfo,
+    )
+    if (result.affectedRows !== 1) {
+      return false
+    }
+    const list = await this.app.mysql.query(
+      'select * from development_year_table order by id desc limit 1',
+    )
+
+    return JSON.parse(JSON.stringify(list))[0]
+  }
+
+  // 删除年份
+  async deleteDevelopmentYear(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'development_year_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 获取发展历程年份
+  async getDevelopmentYear() {
+    const option = {
+      columns: ['pm_code', 'year'],
+      where: {
+        deleted: 0,
+      },
+      orders: [['year', 'desc']],
+    }
+    return (await this.app.mysql.select('development_year_table', option)) || []
+  }
+
+  // 获取发展年份事件
+  async getDevelopmentEvent(year_pm_code) {
+    const option = {
+      columns: ['pm_code', 'month', 'event'],
+      where: {
+        deleted: 0,
+        year_pm_code,
+      },
+      orders: [['id', 'asc']],
+    }
+    return (
+      (await this.app.mysql.select('development_event_table', option)) || []
+    )
+  }
+
+  // 编辑 新增发展年份事件
+  async setDevelopmentEvent(info) {
+    const { pm_code, month, event } = info
+    if (pm_code) {
+      // 编辑
+      const options = {
+        where: {
+          pm_code,
+        },
+      }
+      const newInfo = await this.ctx.service.fillUtil.fillModifyRecord(info)
+      const result = await this.app.mysql.update(
+        'development_event_table',
+        newInfo,
+        options,
+      )
+      return result.affectedRows === 1
+    }
+    if (!pm_code) {
+      // 新增
+      const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+      const result = await this.app.mysql.insert(
+        'development_event_table',
+        newInfo,
+      )
+      return result.affectedRows === 1
+    }
   }
 }
 module.exports = WebService

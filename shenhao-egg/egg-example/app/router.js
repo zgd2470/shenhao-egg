@@ -54,6 +54,36 @@ module.exports = (app) => {
   // 删除评论
   router.get('/api/deleteComments', controller.web.deleteComments)
 
+  // 常见问题
+  router.post('/api/submitProblem', controller.web.submitProblem)
+
+  // 常见问题
+  router.get('/api/getProblemList', controller.web.getProblemList)
+
+  // 删除常见问题
+  router.get('/api/deleteProblem', controller.web.deleteProblem)
+
+  // 获取有帮助数量
+  router.get('/api/getGiveLikeCount', controller.web.getGiveLikeCount)
+
+  // 有帮助
+  router.get('/api/giveLike', controller.web.giveLike)
+
+  // 新增发展历程年份
+  router.post('/api/setDevelopmentYear', controller.web.setDevelopmentYear)
+
+  // 获取发展历程年份
+  router.get('/api/getDevelopmentYear', controller.web.getDevelopmentYear)
+
+  // 获取发展年份事件
+  router.get('/api/getDevelopmentEvent', controller.web.getDevelopmentEvent)
+
+  // 编辑年份事件
+  router.post('/api/setDevelopmentEvent', controller.web.setDevelopmentEvent)
+
+  // 删除发展年份
+  router.get('/api/deleteDevelopmentYear', controller.web.deleteDevelopmentYear)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 
