@@ -394,7 +394,7 @@ class WebService extends Service {
         deleted: 0,
         year_pm_code,
       },
-      orders: [['id', 'asc']],
+      orders: [['index', 'asc']],
     }
     return (
       (await this.app.mysql.select('development_event_table', option)) || []
@@ -404,6 +404,7 @@ class WebService extends Service {
   // 编辑 新增发展年份事件
   async setDevelopmentEvent(info) {
     const { pm_code, month, event } = info
+    console.log(info)
     if (pm_code) {
       // 编辑
       const options = {

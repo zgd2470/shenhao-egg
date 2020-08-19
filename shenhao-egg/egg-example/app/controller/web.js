@@ -919,9 +919,10 @@ class CustomController extends Controller {
       return
     }
     return Promise.all(
-      monthArray.map(async (info) => {
+      monthArray.map(async (info, index) => {
         return await this.ctx.service.webService.setDevelopmentEvent({
           month: info,
+          index,
           year_pm_code: result.pm_code,
         })
       }),
@@ -973,12 +974,11 @@ class CustomController extends Controller {
   // 编辑 新增发展年份事件
   async setDevelopmentEvent() {
     const { body = {} } = this.ctx.request
-    const { pmCode, month, event, yearPmCode } = body
+    const { pmCode, month, event } = body
     const info = {
       pm_code: pmCode,
       month,
       event,
-      year_pm_code: yearPmCode,
     }
     const result = await this.ctx.service.webService.setDevelopmentEvent(info)
     if (!result) {
@@ -998,7 +998,9 @@ class CustomController extends Controller {
   async deleteDevelopmentYear() {
     const { query } = this.ctx.request
     const { pmCode } = query
-    const result = await this.ctx.service.webService.deleteDevelopmentYear(pmCode)
+    const result = await this.ctx.service.webService.deleteDevelopmentYear(
+      pmCode,
+    )
     if (!result) {
       this.ctx.body = {
         success: false,
