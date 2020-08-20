@@ -213,14 +213,8 @@ class CustomController extends Controller {
           creatorId: 'admin',
           deleted: 0,
           id: '77e8bD95-881E-91ce-d3D3-f18Ac398Ddc5',
-          lang: 'zh-CN',
-          lastLoginIp: '27.154.74.117',
-          lastLoginTime: 1534837621348,
-          name: 'Shirley Taylor',
           password: '',
           roleId: 'admin',
-          status: 1,
-          telephone: '',
           token: '4291d7da9005377ec9aec4a71ea837f',
           username: 'admin',
         },
@@ -255,17 +249,12 @@ class CustomController extends Controller {
     const {} = this.ctx.request
     const userInfo = {
       id: '4291d7da9005377ec9aec4a71ea837f',
-      name: '天野远子',
       username: 'admin',
       password: '',
       avatar: '/avatar2.jpg',
       status: 1,
-      telephone: '',
-      lastLoginIp: '27.154.74.117',
-      lastLoginTime: 1534837621348,
       creatorId: 'admin',
       createTime: 1497160610259,
-      merchantCode: 'TLif2btpzg079h15bk',
       deleted: 0,
       roleId: 'admin',
       role: {},
@@ -275,152 +264,14 @@ class CustomController extends Controller {
       id: 'admin',
       name: '管理员',
       describe: '拥有所有权限',
-      status: 1,
-      creatorId: 'system',
-      createTime: 1497160610259,
       deleted: 0,
       permissions: [
         {
           roleId: 'admin',
-          permissionId: 'dashboard',
-          permissionName: '仪表盘',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
           permissionId: 'exception',
           permissionName: '异常页面权限',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'result',
-          permissionName: '结果权限',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'profile',
-          permissionName: '详细页权限',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
+          actions: '',
+          actionEntitySet: [],
           actionList: null,
           dataAccess: null,
         },
@@ -428,30 +279,8 @@ class CustomController extends Controller {
           roleId: 'admin',
           permissionId: 'table',
           permissionName: '表格权限',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"import","defaultCheck":false,"describe":"导入"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'import',
-              describe: '导入',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-          ],
+          actions: '',
+          actionEntitySet: [],
           actionList: null,
           dataAccess: null,
         },
@@ -459,257 +288,13 @@ class CustomController extends Controller {
           roleId: 'admin',
           permissionId: 'form',
           permissionName: '表单权限',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'order',
-          permissionName: '订单管理',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'permission',
-          permissionName: '权限管理',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'role',
-          permissionName: '角色管理',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'table',
-          permissionName: '桌子管理',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"query","defaultCheck":false,"describe":"查询"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'query',
-              describe: '查询',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-          ],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'user',
-          permissionName: '用户管理',
-          actions:
-            '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"import","defaultCheck":false,"describe":"导入"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"},{"action":"export","defaultCheck":false,"describe":"导出"}]',
-          actionEntitySet: [
-            {
-              action: 'add',
-              describe: '新增',
-              defaultCheck: false,
-            },
-            {
-              action: 'import',
-              describe: '导入',
-              defaultCheck: false,
-            },
-            {
-              action: 'get',
-              describe: '详情',
-              defaultCheck: false,
-            },
-            {
-              action: 'update',
-              describe: '修改',
-              defaultCheck: false,
-            },
-            {
-              action: 'delete',
-              describe: '删除',
-              defaultCheck: false,
-            },
-            {
-              action: 'export',
-              describe: '导出',
-              defaultCheck: false,
-            },
-          ],
+          actions: '',
+          actionEntitySet: [],
           actionList: null,
           dataAccess: null,
         },
       ],
     }
-
-    roleObj.permissions.push({
-      roleId: 'admin',
-      permissionId: 'support',
-      permissionName: '超级模块',
-      actions:
-        '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"import","defaultCheck":false,"describe":"导入"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"delete","defaultCheck":false,"describe":"删除"},{"action":"export","defaultCheck":false,"describe":"导出"}]',
-      actionEntitySet: [
-        {
-          action: 'add',
-          describe: '新增',
-          defaultCheck: false,
-        },
-        {
-          action: 'import',
-          describe: '导入',
-          defaultCheck: false,
-        },
-        {
-          action: 'get',
-          describe: '详情',
-          defaultCheck: false,
-        },
-        {
-          action: 'update',
-          describe: '修改',
-          defaultCheck: false,
-        },
-        {
-          action: 'delete',
-          describe: '删除',
-          defaultCheck: false,
-        },
-        {
-          action: 'export',
-          describe: '导出',
-          defaultCheck: false,
-        },
-      ],
-      actionList: null,
-      dataAccess: null,
-    })
 
     userInfo.role = roleObj
 
@@ -1001,6 +586,336 @@ class CustomController extends Controller {
     const result = await this.ctx.service.webService.deleteDevelopmentYear(
       pmCode,
     )
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 统计
+  async setStatistical() {
+    const { body = {} } = this.ctx.request
+    const { typeOne, typeTwo, typeThree, ip } = body
+    const time = moment().format('YYYY-MM-DD')
+    const info = {
+      type_one: typeOne,
+      type_two: typeTwo,
+      type_three: typeThree,
+      ip,
+      time,
+    }
+    const queryResult = await this.ctx.service.webService.queryHasStatistical(
+      info,
+    )
+    if (queryResult) {
+      this.ctx.body = {
+        message: '已记录过',
+        success: false,
+      }
+      return
+    }
+    const result = await this.ctx.service.webService.setStatistical(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 统计
+  async getStatistical() {
+    const { query = {} } = this.ctx.request
+    const { typeOne, typeTwo, typeThree } = query
+    const info = {
+      type_one: typeOne,
+      type_two: typeTwo,
+      type_three: typeThree,
+    }
+    if (Number(typeTwo) === 0) {
+      const result = await this.ctx.service.webService.getStatisticalAll(info)
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+        data: result,
+      }
+      return
+    }
+    const data = await this.ctx.service.webService.getStatistical(info)
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
+    }
+  }
+
+  // 预约演示提交
+  async setDemonstrate() {
+    const { body = {} } = this.ctx.request
+    const {
+      name,
+      phone,
+      position,
+      companyName,
+      companyAddress,
+      industry,
+    } = body
+    const info = {
+      name,
+      phone,
+      position,
+      industry,
+      company_name: companyName,
+      company_address: companyAddress,
+      is_deal: 0,
+    }
+    const queryResult = await this.ctx.service.webService.queryDemonstrate(
+      phone,
+    )
+    if (queryResult) {
+      this.ctx.body = {
+        message: '该手机用户已提交过',
+        success: false,
+      }
+      return
+    }
+    const result = await this.ctx.service.webService.setDemonstrate(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '提交成功',
+    }
+  }
+
+  // 预约演示列表
+  async getDemonstrateList() {
+    const { query } = this.ctx.request
+    const { phone, isDeal, current = 1, pageSize = 10 } = query
+
+    const data = await this.ctx.service.webService.getDemonstrateList({
+      phone,
+      is_deal: isDeal,
+      current,
+      pageSize,
+    })
+    const newData = {
+      total: data.total || 0,
+      list: data.list.map((info) => {
+        return {
+          pmCode: info.pm_code,
+          name: info.name,
+          phone: info.phone,
+          position: info.position,
+          companyName: info.company_name,
+          companyAddress: info.company_address,
+          industry: info.industry,
+          isDeal: info.is_deal,
+          createTime: info.create_time,
+        }
+      }),
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newData,
+    }
+  }
+
+  // 处理预约演示
+  async dealDemonstrate() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.dealDemonstrate(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 成为合作伙伴
+  async setPartner() {
+    const { body = {} } = this.ctx.request
+    const { name, phone, position, companyName, companyPhone } = body
+    const info = {
+      name,
+      phone,
+      position,
+      company_name: companyName,
+      company_phone: companyPhone,
+      is_deal: 0,
+    }
+    const queryResult = await this.ctx.service.webService.queryPartner(phone)
+    if (queryResult) {
+      this.ctx.body = {
+        message: '该手机用户已提交过',
+        success: false,
+      }
+      return
+    }
+    const result = await this.ctx.service.webService.setPartner(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '提交成功',
+    }
+  }
+
+  // 成为合作伙伴列表
+  async getPartnerList() {
+    const { query } = this.ctx.request
+    const { phone, isDeal, current = 1, pageSize = 10 } = query
+
+    const data = await this.ctx.service.webService.getPartnerList({
+      phone,
+      is_deal: isDeal,
+      current,
+      pageSize,
+    })
+    const newData = {
+      total: data.total || 0,
+      list: data.list.map((info) => {
+        return {
+          pmCode: info.pm_code,
+          name: info.name,
+          phone: info.phone,
+          position: info.position,
+          companyName: info.company_name,
+          companyPhone: info.company_phone,
+          isDeal: info.is_deal,
+          createTime: info.create_time,
+        }
+      }),
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newData,
+    }
+  }
+
+  // 处理合作伙伴
+  async dealPartner() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.dealPartner(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 试用申请
+  async setTrial() {
+    const { body = {} } = this.ctx.request
+    const { name, phone, position, companyName, companySize, email } = body
+    const info = {
+      name,
+      phone,
+      position,
+      company_name: companyName,
+      company_size: companySize,
+      email,
+      is_deal: 0,
+    }
+    const queryResult = await this.ctx.service.webService.queryTrial(phone)
+    if (queryResult) {
+      this.ctx.body = {
+        message: '该手机用户已提交过',
+        success: false,
+      }
+      return
+    }
+    const result = await this.ctx.service.webService.setTrial(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '提交成功',
+    }
+  }
+
+  // 试用申请列表
+  async getTrialList() {
+    const { query } = this.ctx.request
+    const { phone, isDeal, current = 1, pageSize = 10 } = query
+
+    const data = await this.ctx.service.webService.getTrialList({
+      phone,
+      is_deal: isDeal,
+      current,
+      pageSize,
+    })
+    const newData = {
+      total: data.total || 0,
+      list: data.list.map((info) => {
+        return {
+          pmCode: info.pm_code,
+          name: info.name,
+          phone: info.phone,
+          position: info.position,
+          companyName: info.company_name,
+          companySize: info.company_size,
+          email: info.email,
+          isDeal: info.is_deal,
+          createTime: info.create_time,
+        }
+      }),
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newData,
+    }
+  }
+
+  // 处理试用申请
+  async dealTrial() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.dealTrial(pmCode)
     if (!result) {
       this.ctx.body = {
         success: false,

@@ -84,6 +84,39 @@ module.exports = (app) => {
   // 删除发展年份
   router.get('/api/deleteDevelopmentYear', controller.web.deleteDevelopmentYear)
 
+  // 统计
+  router.post('/api/setStatistical', controller.web.setStatistical)
+
+  // 统计
+  router.get('/api/getStatistical', controller.web.getStatistical)
+
+  // 预约演示
+  router.post('/api/setDemonstrate', controller.web.setDemonstrate)
+
+  // 预约列表
+  router.get('/api/getDemonstrateList', controller.web.getDemonstrateList)
+
+  // 处理预约演示
+  router.get('/api/dealDemonstrate', controller.web.dealDemonstrate)
+
+  // 成为合作伙伴
+  router.post('/api/setPartner', controller.web.setPartner)
+
+  // 成为合作伙伴列表
+  router.get('/api/getPartnerList', controller.web.getPartnerList)
+
+  // 处理合作伙伴
+  router.get('/api/dealPartner', controller.web.dealPartner)
+
+  // 试用申请
+  router.post('/api/setTrial', controller.web.setTrial)
+
+  // 试用申请列表
+  router.get('/api/getTrialList', controller.web.getTrialList)
+
+  // 处理试用申请
+  router.get('/api/dealTrial', controller.web.dealTrial)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 

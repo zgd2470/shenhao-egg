@@ -404,7 +404,6 @@ class WebService extends Service {
   // 编辑 新增发展年份事件
   async setDevelopmentEvent(info) {
     const { pm_code, month, event } = info
-    console.log(info)
     if (pm_code) {
       // 编辑
       const options = {
@@ -429,6 +428,304 @@ class WebService extends Service {
       )
       return result.affectedRows === 1
     }
+  }
+
+  // 查询当天的ip是不是已经存过
+  async queryHasStatistical(info) {
+    const result = await this.app.mysql.get('statistical_table', {
+      ...info,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 记录统计
+  async setStatistical(info) {
+    const result = await this.app.mysql.insert('statistical_table', {
+      ...info,
+      deleted: 0,
+    })
+
+    return result.affectedRows === 1
+  }
+
+  // 获取统计
+  async getStatistical(info) {
+    const { type_one, type_two, type_three } = info
+    let sqlWhere = 'deleted = 0'
+    if (type_one) {
+      sqlWhere += ` and type_one='${type_one}'`
+    }
+    if (type_two) {
+      sqlWhere += ` and type_two='${type_two}'`
+    }
+    if (type_three) {
+      sqlWhere += ` and type_three='${type_three}'`
+    }
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM statistical_table where ${sqlWhere} `,
+    )
+    return JSON.parse(JSON.stringify(total))[0].total
+  }
+
+  // 获取统计
+  async getStatisticalAll({ type_one, type_two, type_three }) {
+    const list = await this.app.mysql.query(
+      `select type_two,COUNT(*) as number FROM statistical_table where deleted = '0' and type_one = '${type_one}' group by type_two`,
+    )
+    return list.map((info) => {
+      return {
+        number: info.number,
+        typeTwo: info.type_two,
+      }
+    })
+  }
+
+  // 预约演示
+  async setDemonstrate(info) {
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+    const result = await this.app.mysql.insert('demonstrate_table', newInfo)
+
+    return result.affectedRows === 1
+  }
+
+  // 查询手机号是否提交过
+  async queryDemonstrate(phone) {
+    const result = await this.app.mysql.get('demonstrate_table', {
+      phone,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 预约演示列表
+  async getDemonstrateList({ phone, is_deal, current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'pm_code',
+      'name',
+      'phone',
+      'position',
+      'company_name',
+      'company_address',
+      'industry',
+      'is_deal',
+      'create_time',
+    ]
+
+    if (phone) {
+      where.phone = phone
+      sqlWhere += ` and phone='${phone}'`
+    }
+
+    if (is_deal) {
+      where.is_deal = is_deal
+      sqlWhere += ` and is_deal='${is_deal}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+
+    const list =
+      (await this.app.mysql.select('demonstrate_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM demonstrate_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list: list,
+    }
+  }
+
+  // 处理预约演示
+  async dealDemonstrate(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'demonstrate_table',
+      { is_deal: '1' },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 合作伙伴
+  async setPartner(info) {
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+    const result = await this.app.mysql.insert('partner_table', newInfo)
+
+    return result.affectedRows === 1
+  }
+
+  // 合作伙伴列表
+  async getPartnerList({ phone, is_deal, current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'pm_code',
+      'name',
+      'phone',
+      'position',
+      'company_name',
+      'company_phone',
+      'is_deal',
+      'create_time',
+    ]
+
+    if (phone) {
+      where.phone = phone
+      sqlWhere += ` and phone='${phone}'`
+    }
+
+    if (is_deal) {
+      where.is_deal = is_deal
+      sqlWhere += ` and is_deal='${is_deal}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+
+    const list = (await this.app.mysql.select('partner_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM partner_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list: list,
+    }
+  }
+
+  // 处理合作伙伴
+  async dealPartner(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'partner_table',
+      { is_deal: '1' },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 查询手机号是否提交过
+  async queryPartner(phone) {
+    const result = await this.app.mysql.get('partner_table', {
+      phone,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 试用申请
+  async setTrial(info) {
+    const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+    const result = await this.app.mysql.insert('trial_table', newInfo)
+
+    return result.affectedRows === 1
+  }
+
+  // 试用申请列表
+  async getTrialList({ phone, is_deal, current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'pm_code',
+      'name',
+      'phone',
+      'position',
+      'company_name',
+      'company_size',
+      'email',
+      'is_deal',
+      'create_time',
+    ]
+
+    if (phone) {
+      where.phone = phone
+      sqlWhere += ` and phone='${phone}'`
+    }
+
+    if (is_deal) {
+      where.is_deal = is_deal
+      sqlWhere += ` and is_deal='${is_deal}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+
+    const list = (await this.app.mysql.select('trial_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM trial_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list: list,
+    }
+  }
+
+  // 查询手机号是否提交过
+  async queryTrial(phone) {
+    const result = await this.app.mysql.get('trial_table', {
+      phone,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 处理试用申请
+  async dealTrial(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'trial_table',
+      { is_deal: '1' },
+      options,
+    )
+    return result.affectedRows === 1
   }
 }
 module.exports = WebService
