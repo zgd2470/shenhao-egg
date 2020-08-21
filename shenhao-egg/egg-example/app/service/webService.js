@@ -6,7 +6,7 @@ const Service = require('egg').Service
 
 class WebService extends Service {
   // 新建和编辑视频
-  async setVideoDetail(info) {
+  async setVideoDetail(info, tags) {
     const {
       img_pm_code,
       is_recommended,
@@ -30,12 +30,14 @@ class WebService extends Service {
         newInfo,
         options,
       )
+      await this.setTags(pm_code, tags)
       return result.affectedRows === 1
     }
     if (!pm_code) {
       // 新增
       const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
       const result = await this.app.mysql.insert('video_table', newInfo)
+      await this.setTags(pm_code, tags)
       return result.affectedRows === 1
     }
   }
@@ -151,6 +153,8 @@ class WebService extends Service {
       'video_pm_code',
       'create_time',
       'video_path',
+      'sorting',
+      'is_guess_like',
     ]
 
     if (title) {
@@ -164,7 +168,7 @@ class WebService extends Service {
     const option = {
       columns,
       where,
-      orders: [['create_time', 'desc']],
+      orders: [['sorting', 'asc']],
       limit: Number(pageSize), // 返回数据量
       offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
     }
@@ -185,8 +189,9 @@ class WebService extends Service {
       columns: ['pm_code', 'img_pm_code', 'number', 'title', 'create_time'],
       where: {
         deleted: 0,
+        is_guess_like: 1,
       },
-      orders: [['number', 'desc']],
+      orders: [['sorting', 'asc']],
       limit: 3, // 返回数据量
       offset: 0, // 数据偏移量
     }
@@ -225,6 +230,8 @@ class WebService extends Service {
         'introduction',
         'video_pm_code',
         'video_path',
+        'is_guess_like',
+        'sorting',
       ],
     }
     const result = (await this.app.mysql.select('video_table', option)) || []
@@ -726,6 +733,166 @@ class WebService extends Service {
       options,
     )
     return result.affectedRows === 1
+  }
+
+  // 增加tag
+  async setTags(relation_pm_code, data) {
+    const options = {
+      where: {
+        relation_pm_code,
+      },
+    }
+    await this.app.mysql.update('tags_table', { deleted: 1 }, options)
+    return Promise.all(
+      data.map(async (info) => {
+        const newInfo = await this.ctx.service.fillUtil.fillNewRecord({
+          relation_pm_code,
+          text: info,
+        })
+        return await this.app.mysql.insert('tags_table', newInfo)
+      }),
+    ).then(() => {
+      return true
+    })
+  }
+
+  // 获取tag
+  async getTags(relation_pm_code) {
+    const where = {
+      deleted: 0,
+      relation_pm_code,
+    }
+    const option = {
+      columns: ['text'],
+      where,
+    }
+
+    const result = (await this.app.mysql.select('tags_table', option)) || []
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 新建和编辑Banner
+  async setBanner(info) {
+    const { img_pm_code, pm_code, sorting, state, type, note } = info
+    if (pm_code) {
+      // 编辑
+      const options = {
+        where: {
+          pm_code,
+        },
+      }
+      const newInfo = await this.ctx.service.fillUtil.fillModifyRecord(info)
+      const result = await this.app.mysql.update(
+        'banner_table',
+        newInfo,
+        options,
+      )
+      return result.affectedRows === 1
+    }
+    if (!pm_code) {
+      // 新增
+      const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+      const result = await this.app.mysql.insert('banner_table', newInfo)
+      return result.affectedRows === 1
+    }
+  }
+
+  // 获取Banner列表
+  async getBanner({ type, current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'pm_code',
+      'img_pm_code',
+      'state',
+      'sorting',
+      'type',
+      'note',
+    ]
+
+    if (type) {
+      where.type = type
+      sqlWhere += ` and type='${type}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['type', 'asc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+    const list = (await this.app.mysql.select('banner_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM banner_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list: JSON.parse(JSON.stringify(list)),
+    }
+  }
+
+  // 删除Banner
+  async deleteBanner(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'banner_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 获取Banner得到详情
+  async getBannerDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: ['pm_code', 'img_pm_code', 'type', 'state', 'note', 'sorting'],
+    }
+    const result = (await this.app.mysql.select('banner_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
+  }
+
+  // 获取官网Banner
+  async getBannerArray(type) {
+    const where = {
+      deleted: 0,
+      type,
+      state: 1,
+    }
+
+    const columns = ['img_pm_code']
+
+    const option = {
+      columns,
+      where,
+      orders: [['sorting', 'asc']],
+    }
+    const list = (await this.app.mysql.select('banner_table', option)) || []
+
+    return JSON.parse(JSON.stringify(list))
+  }
+
+  // 登录
+  async login({ username, password }) {
+    const result = await this.app.mysql.get('user_table', {
+      username,
+      password,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
   }
 }
 module.exports = WebService

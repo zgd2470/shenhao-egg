@@ -34,10 +34,15 @@ class CustomController extends Controller {
       videoPmCode,
       pmCode,
       videoPath,
+      sorting,
+      isGuessLike,
+      tags,
     } = body
     const info = {
       img_pm_code: imgPmCode,
       is_recommended: isRecommended,
+      sorting,
+      is_guess_like: isGuessLike,
       number,
       title,
       introduction,
@@ -45,7 +50,7 @@ class CustomController extends Controller {
       pm_code: pmCode,
       video_path: videoPath,
     }
-    const result = await this.ctx.service.webService.setVideoDetail(info)
+    const result = await this.ctx.service.webService.setVideoDetail(info, tags)
     if (!result) {
       this.ctx.body = {
         success: false,
@@ -70,9 +75,11 @@ class CustomController extends Controller {
       current,
       pageSize,
     })
-    const newData = {
-      total: data.total || 0,
-      list: data.list.map((info) => {
+
+    return Promise.all(
+      data.list.map(async (info) => {
+        const tags = await this.ctx.service.webService.getTags(info.pm_code)
+        const newTags = tags.map((info) => info.text)
         return {
           pmCode: info.pm_code,
           imgPmCode: info.img_pm_code,
@@ -82,15 +89,22 @@ class CustomController extends Controller {
           introduction: info.introduction,
           videoPmCode: info.video_pm_code,
           videoPath: info.video_path,
+          sorting: info.sorting,
+          isGuessLike: info.is_guess_like,
           createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
+          tags: newTags,
         }
       }),
-    }
-    this.ctx.body = {
-      success: true,
-      message: '操作成功',
-      data: newData,
-    }
+    ).then((result) => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+        data: {
+          total: data.total || 0,
+          list: result,
+        },
+      }
+    })
   }
 
   // 获取视屏得到详情
@@ -98,6 +112,8 @@ class CustomController extends Controller {
     const { query } = this.ctx.request
     const { pmCode } = query
     const result = await this.ctx.service.webService.getVideoDetail(pmCode)
+    const tags = await this.ctx.service.webService.getTags(pmCode)
+    const newTags = tags.map((info) => info.text)
     if (!result) {
       this.ctx.body = {
         success: false,
@@ -114,6 +130,9 @@ class CustomController extends Controller {
       introduction: result.introduction,
       videoPmCode: result.video_pm_code,
       videoPath: result.video_path,
+      sorting: result.sorting,
+      isGuessLike: result.is_guess_like,
+      tags: newTags,
     }
     this.ctx.body = {
       success: true,
@@ -193,42 +212,39 @@ class CustomController extends Controller {
     }
   }
 
-  // TODO：登录写死
+  // 登录
   async login() {
     const { body = {} } = this.ctx.request
     const { username, password } = body
-    const passwordArray = [
-      '8914de686ab28dc22f30d3d8e107ff6c',
-      '21232f297a57a5a743894a0e4a801fc3',
-    ]
-    if (username === 'admin' && passwordArray.includes(password)) {
+    const queryResult = await this.ctx.service.webService.login({
+      username,
+      password,
+    })
+    console.log(queryResult)
+    if (!queryResult) {
       this.ctx.body = {
-        success: true,
-        message: '操作成功',
-        code: 200,
+        success: false,
+        message: '账户或密码错误',
+        code: 401,
         result: {
-          avatar:
-            'https://gw.alipayobjects.com/zos/rmsportal/jZUIxmJycoymBprLOUbT.png',
-          createTime: 1497160610259,
-          creatorId: 'admin',
-          deleted: 0,
-          id: '77e8bD95-881E-91ce-d3D3-f18Ac398Ddc5',
-          password: '',
-          roleId: 'admin',
-          token: '4291d7da9005377ec9aec4a71ea837f',
-          username: 'admin',
+          isLogin: true,
         },
       }
       return
     }
 
+    const result = {
+      username: queryResult.username,
+      avatar: queryResult.avatar,
+      pmCode: queryResult.pm_code,
+      token: queryResult.token,
+    }
+
     this.ctx.body = {
-      success: false,
-      message: '账户或密码错误',
-      code: 401,
-      result: {
-        isLogin: true,
-      },
+      success: true,
+      message: '操作成功',
+      code: 200,
+      result,
     }
   }
 
@@ -926,6 +942,119 @@ class CustomController extends Controller {
     this.ctx.body = {
       success: true,
       message: '操作成功',
+    }
+  }
+
+  // 编辑 新增Banner
+  async setBanner() {
+    const { body = {} } = this.ctx.request
+    const { imgPmCode, pmCode, state, sorting, type, note } = body
+    const info = {
+      img_pm_code: imgPmCode,
+      pm_code: pmCode,
+      sorting,
+      state,
+      type,
+      note,
+    }
+    const result = await this.ctx.service.webService.setBanner(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // Banner列表
+  async getBannerList() {
+    const { query } = this.ctx.request
+    const { type, current = 1, pageSize = 500 } = query
+
+    const data = await this.ctx.service.webService.getBanner({
+      type,
+      current,
+      pageSize,
+    })
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: {
+        total: data.total || 0,
+        list: data.list.map((info) => {
+          return {
+            imgPmCode: info.img_pm_code,
+            pmCode: info.pm_code,
+            sorting: info.sorting,
+            state: info.state,
+            type: info.type,
+            note: info.note,
+          }
+        }),
+      },
+    }
+  }
+
+  // 删除Banner
+  async deleteBanner() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.deleteBanner(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 获取Banner得到详情
+  async getBannerDetail() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.getBannerDetail(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+      }
+      return
+    }
+    const data = {
+      pmCode: result.pm_code,
+      imgPmCode: result.img_pm_code,
+      type: result.type,
+      state: result.state,
+      note: result.note,
+      sorting: result.sorting,
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
+    }
+  }
+
+  // 获取官网Banner
+  async getBannerArray() {
+    const { query } = this.ctx.request
+    const { type } = query
+    const result = await this.ctx.service.webService.getBannerArray(type)
+    const data = result.map((info) => info.img_pm_code)
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
     }
   }
 }

@@ -117,6 +117,21 @@ module.exports = (app) => {
   // 处理试用申请
   router.get('/api/dealTrial', controller.web.dealTrial)
 
+  // 新建和编辑Banner
+  router.post('/api/setBanner', controller.web.setBanner)
+
+  // Banner列表
+  router.get('/api/getBannerList', controller.web.getBannerList)
+
+  // Banner详情
+  router.get('/api/getBannerDetail', controller.web.getBannerDetail)
+
+  // 删除Banner
+  router.get('/api/deleteBanner', controller.web.deleteBanner)
+
+  // 官网获取轮播Banner
+  router.get('/api/getBannerArray', controller.web.getBannerArray)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 
