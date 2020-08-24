@@ -220,7 +220,7 @@ class CustomController extends Controller {
       username,
       password,
     })
-    console.log(queryResult)
+
     if (!queryResult) {
       this.ctx.body = {
         success: false,
@@ -262,63 +262,59 @@ class CustomController extends Controller {
 
   // TODO：个人信息写死
   async userInfo() {
-    const {} = this.ctx.request
-    const userInfo = {
-      id: '4291d7da9005377ec9aec4a71ea837f',
-      username: 'admin',
-      password: '',
-      avatar: '/avatar2.jpg',
-      status: 1,
-      creatorId: 'admin',
-      createTime: 1497160610259,
-      deleted: 0,
-      roleId: 'admin',
-      role: {},
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    if (!pmCode) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+        code: 0,
+        result: {},
+      }
+      return
     }
-    // role
-    const roleObj = {
-      id: 'admin',
-      name: '管理员',
-      describe: '拥有所有权限',
-      deleted: 0,
-      permissions: [
-        {
-          roleId: 'admin',
-          permissionId: 'exception',
-          permissionName: '异常页面权限',
-          actions: '',
-          actionEntitySet: [],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'table',
-          permissionName: '表格权限',
-          actions: '',
-          actionEntitySet: [],
-          actionList: null,
-          dataAccess: null,
-        },
-        {
-          roleId: 'admin',
-          permissionId: 'form',
-          permissionName: '表单权限',
-          actions: '',
-          actionEntitySet: [],
-          actionList: null,
-          dataAccess: null,
-        },
-      ],
+    const queryResult = await this.ctx.service.webService.queryUserInfo(pmCode)
+    console.log(queryResult)
+    if (!queryResult) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+        code: 0,
+        result: {},
+      }
+      return
     }
 
-    userInfo.role = roleObj
+    const permissions = queryResult.permissions.split(',').map((info) => {
+      return {
+        permissionId: info,
+      }
+    })
+
+    if (queryResult.permissions.includes('knowledge')) {
+      permissions.push({ permissionId: 'knowledge' })
+    }
+    if (queryResult.permissions.includes('form')) {
+      permissions.push({ permissionId: 'form' })
+    }
+    if (queryResult.permissions.includes('about')) {
+      permissions.push({ permissionId: 'about' })
+    }
+    if (queryResult.permissions.includes('setting')) {
+      permissions.push({ permissionId: 'setting' })
+    }
 
     this.ctx.body = {
       success: true,
       message: '',
       code: 0,
-      result: userInfo,
+      result: {
+        username: queryResult.username,
+        name: queryResult.name,
+        pmCode: queryResult.pm_code,
+        id: queryResult.id,
+        role: { permissions },
+      },
     }
   }
 
@@ -1055,6 +1051,55 @@ class CustomController extends Controller {
       success: true,
       message: '操作成功',
       data,
+    }
+  }
+
+  // 获取菜单
+  async getMenuArray() {
+    const { query } = this.ctx.request
+    const result = await this.ctx.service.webService.getMenuArray()
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: result,
+    }
+  }
+
+  // 新增发展历程年份
+  async setUser() {
+    const { body = {} } = this.ctx.request
+    const { username, password, permissions, name, pmCode } = body
+
+    const queryResult = await this.ctx.service.webService.queryUserName(
+      username,
+    )
+    if (queryResult) {
+      this.ctx.body = {
+        message: '改账号已存在',
+        success: false,
+      }
+      return
+    }
+    const info = {
+      username,
+      password,
+      permissions: permissions.join(','),
+      name,
+      pm_code: pmCode,
+      token: await this.ctx.service.uuid.getUuid(),
+    }
+    const result = await this.ctx.service.webService.setUser(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
     }
   }
 }

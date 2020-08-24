@@ -894,5 +894,64 @@ class WebService extends Service {
 
     return JSON.parse(JSON.stringify(result))
   }
+
+  // 获取菜单
+  async getMenuArray() {
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = ['name', 'permission']
+
+    const option = {
+      columns,
+      where,
+    }
+    const list = (await this.app.mysql.select('menu_table', option)) || []
+
+    return JSON.parse(JSON.stringify(list))
+  }
+
+  // 查询用户名是否存在
+  async queryUserName(username) {
+    const result = await this.app.mysql.get('user_table', {
+      username,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 新建和编辑用户
+  async setUser(info) {
+    if (info.pm_code) {
+      // 编辑
+      const options = {
+        where: {
+          pm_code: info.pm_code,
+          deleted: 0,
+        },
+      }
+      const newInfo = await this.ctx.service.fillUtil.fillModifyRecord(info)
+      const result = await this.app.mysql.update('user_table', newInfo, options)
+      return result.affectedRows === 1
+    }
+    if (!info.pm_code) {
+      // 新增
+      const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+      const result = await this.app.mysql.insert('user_table', newInfo)
+      return result.affectedRows === 1
+    }
+  }
+
+  // 查询用户信息
+  async queryUserInfo(pm_code) {
+    const result = await this.app.mysql.get('user_table', {
+      pm_code,
+      deleted: 0,
+    })
+
+    return JSON.parse(JSON.stringify(result))
+  }
 }
 module.exports = WebService

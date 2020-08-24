@@ -132,6 +132,12 @@ module.exports = (app) => {
   // 官网获取轮播Banner
   router.get('/api/getBannerArray', controller.web.getBannerArray)
 
+  // 获取菜单
+  router.get('/api/getMenuArray', controller.web.getMenuArray)
+
+  // 新增编辑用户
+  router.post('/api/setUser', controller.web.setUser)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 
