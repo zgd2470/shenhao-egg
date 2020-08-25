@@ -233,11 +233,18 @@ class CustomController extends Controller {
       return
     }
 
+    const token = this.app.jwt.sign(
+      {
+        username: username, //需要存储的 token 数据
+      },
+      this.app.config.jwt.secret,
+    )
+
     const result = {
       username: queryResult.username,
       avatar: queryResult.avatar,
       pmCode: queryResult.pm_code,
-      token: queryResult.token,
+      token,
     }
 
     this.ctx.body = {
@@ -260,7 +267,6 @@ class CustomController extends Controller {
     }
   }
 
-  // TODO：个人信息写死
   async userInfo() {
     const { query } = this.ctx.request
     const { pmCode } = query
@@ -274,7 +280,6 @@ class CustomController extends Controller {
       return
     }
     const queryResult = await this.ctx.service.webService.queryUserInfo(pmCode)
-    console.log(queryResult)
     if (!queryResult) {
       this.ctx.body = {
         success: false,
@@ -360,7 +365,9 @@ class CustomController extends Controller {
         number: info.number,
         title: info.title,
         averageScore: info.averageScore,
-        createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
+        createTime: info.create_time
+          ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+          : '',
       }
     })
     this.ctx.body = {
@@ -1065,17 +1072,17 @@ class CustomController extends Controller {
     }
   }
 
-  // 新增发展历程年份
+  // 新增用户
   async setUser() {
     const { body = {} } = this.ctx.request
-    const { username, password, permissions, name, pmCode } = body
+    const { username, password, permissions = [], name, pmCode } = body
 
     const queryResult = await this.ctx.service.webService.queryUserName(
       username,
     )
-    if (queryResult) {
+    if (queryResult && !pmCode) {
       this.ctx.body = {
-        message: '改账号已存在',
+        message: '该账号已存在',
         success: false,
       }
       return
@@ -1083,10 +1090,9 @@ class CustomController extends Controller {
     const info = {
       username,
       password,
-      permissions: permissions.join(','),
+      permissions: permissions.length ? permissions.join(',') : '',
       name,
       pm_code: pmCode,
-      token: await this.ctx.service.uuid.getUuid(),
     }
     const result = await this.ctx.service.webService.setUser(info)
     if (!result) {
@@ -1101,6 +1107,315 @@ class CustomController extends Controller {
       success: true,
       message: '操作成功',
     }
+  }
+
+  // 评论列表
+  async getUserList() {
+    const { query } = this.ctx.request
+    const { username, current = 1, pageSize = 10 } = query
+
+    const data = await this.ctx.service.webService.getUserList({
+      username,
+      current,
+      pageSize,
+    })
+    const newData = {
+      total: data.total || 0,
+      list: data.list.map((info) => {
+        return {
+          pmCode: info.pm_code,
+          name: info.name,
+          username: info.username,
+          createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
+        }
+      }),
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: newData,
+    }
+  }
+
+  // 获取用户得到详情
+  async getUserDetail() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.getUserDetail(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+      }
+      return
+    }
+    const data = {
+      pmCode: result.pm_code,
+      name: result.name,
+      username: result.username,
+      password: result.password,
+      permissions: result.permissions.split(',') || [],
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
+    }
+  }
+
+  // 删除用户
+  async deleteUser() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.deleteUser(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 编辑 新增 新闻
+  async setNewsDetail() {
+    const { body = {} } = this.ctx.request
+    const {
+      title,
+      auth,
+      text,
+      imgPmCode,
+      seo,
+      indexRecommended,
+      type,
+      pmCode,
+      tags,
+      introduce,
+      number = 0,
+    } = body
+    const info = {
+      title,
+      auth,
+      text,
+      seo,
+      index_recommended: indexRecommended,
+      type,
+      imgPmCode: img_pm_code,
+      pm_code: pmCode,
+      introduce,
+      number,
+    }
+    const result = await this.ctx.service.webService.setNewsDetail(info, tags)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 获取新闻详情
+  async getNewsDetail() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.getNewsDetail(pmCode)
+    const tags = await this.ctx.service.webService.getTags(pmCode)
+    const newTags = tags.map((info) => info.text)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+      }
+      return
+    }
+    const data = {
+      title: result.title,
+      auth: result.auth,
+      text: result.text,
+      seo: result.seo,
+      index_recommended: result.indexRecommended,
+      type: result.type,
+      imgPmCode: result.img_pm_code,
+      pm_code: result.pmCode,
+      introduce: result.introduce,
+      number: result.number,
+      create_time: result.createTime,
+      tags: newTags,
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
+    }
+  }
+
+  // 新闻列表
+  async getNewsList() {
+    const { query } = this.ctx.request
+    const { title, type, indexRecommended, current = 1, pageSize = 500 } = query
+
+    const data = await this.ctx.service.webService.getNewsList({
+      title,
+      type,
+      index_recommended: indexRecommended,
+      current,
+      pageSize,
+    })
+
+    return Promise.all(
+      data.list.map(async (info) => {
+        const tags = await this.ctx.service.webService.getTags(info.pm_code)
+        const newTags = tags.map((info) => info.text)
+        return {
+          pmCode: info.pm_code,
+          title: info.title,
+          auth: info.auth,
+          seo: info.seo,
+          imgPmCode: result.img_pm_code,
+          indexRecommended: info.index_recommended,
+          type: info.type,
+          introduce: info.introduce,
+          number: info.number,
+          createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
+          tags: newTags,
+        }
+      }),
+    ).then((result) => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+        data: {
+          total: data.total || 0,
+          list: result,
+        },
+      }
+    })
+  }
+
+  // 删除新闻
+  async deleteNews() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.deleteBanner(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 获取官网新闻详情
+  async getWebSiteNewsDetail() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.getNewsDetail(pmCode)
+    const tags = await this.ctx.service.webService.getTags(pmCode)
+
+    const newTags = tags.map((info) => info.text)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+      }
+      return
+    }
+    const data = {
+      title: result.title,
+      auth: result.auth,
+      text: result.text,
+      seo: result.seo,
+      index_recommended: result.indexRecommended,
+      type: result.type,
+      imgPmCode: result.img_pm_code,
+      pm_code: result.pmCode,
+      introduce: result.introduce,
+      number: result.number,
+      create_time: result.createTime,
+      tags: newTags,
+    }
+
+    const {
+      last = null,
+      next = null,
+    } = await this.ctx.service.webService.getLastNext(result.id)
+
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data: {
+        ...data,
+        last,
+        next,
+      },
+    }
+  }
+
+  // 新闻看过人数加1
+  async newsAddNumber() {
+    const { body } = this.ctx.request
+    const { pmCode } = body
+
+    await this.ctx.service.webService.newsAddNumber(pmCode)
+
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 新闻相关推荐
+  async relatedRecommend() {
+    const { query } = this.ctx.request
+    const { pmCode, type } = query
+    const tags = await this.ctx.service.webService.getTags(pmCode)
+    const result = await this.ctx.service.webService.relatedRecommend(tags)
+    const newResult = []
+    result.forEach((info) => {
+      if (info.relation_pm_code !== pmCode) {
+        newResult.push(info.relation_pm_code)
+      }
+    })
+
+    const pmCodeList = [...new Set(newResult)]
+    return Promise.all(
+      pmCodeList.map(async (info) => {
+        return await this.ctx.service.webService.getNewsDetail(info)
+      }),
+    ).then((result) => {
+      const list = []
+      result.forEach((info) => {
+        if (info.type === type) {
+          list.push({
+            title: info.title,
+            create_time: info.create_time,
+            number: info.number,
+            introduce: info.introduce,
+            pmCode: info.pm_code,
+            imgPmCode: result.img_pm_code,
+          })
+        }
+      })
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+        data: list,
+      }
+    })
   }
 }
 

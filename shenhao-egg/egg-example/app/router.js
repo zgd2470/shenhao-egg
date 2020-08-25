@@ -138,6 +138,36 @@ module.exports = (app) => {
   // 新增编辑用户
   router.post('/api/setUser', controller.web.setUser)
 
+  // 用户列表
+  router.get('/api/getUserList', controller.web.getUserList)
+
+  // 用户详情
+  router.get('/api/getUserDetail', controller.web.getUserDetail)
+
+  // 删除用户
+  router.get('/api/deleteUser', controller.web.deleteUser)
+
+  // 新建和编辑新闻
+  router.post('/api/setNewsDetail', controller.web.setNewsDetail)
+
+  // 获取新闻详情
+  router.get('/api/getNewsDetail', controller.web.getNewsDetail)
+
+  // 新闻列表
+  router.get('/api/getNewsList', controller.web.getNewsList)
+
+  // 新闻删除
+  router.get('/api/deleteNews', controller.web.deleteNews)
+
+  // 官网新闻详情
+  router.get('/api/getWebSiteNewsDetail', controller.web.getWebSiteNewsDetail)
+
+  // 官网新闻观看加1
+  router.get('/api/newsAddNumber', controller.web.newsAddNumber)
+
+  // 相关推荐
+  router.get('/api/relatedRecommend', controller.web.relatedRecommend)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 

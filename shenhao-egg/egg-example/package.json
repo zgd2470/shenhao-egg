@@ -12,6 +12,7 @@
     "dayjs": "^1.8.16",
     "egg": "^2.15.1",
     "egg-cors": "^2.2.3",
+    "egg-jwt": "^3.1.7",
     "egg-mysql": "3.0.0",
     "egg-scripts": "^2.11.0",
     "koa-range": "^0.3.0",

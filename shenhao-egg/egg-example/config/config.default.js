@@ -36,6 +36,11 @@ module.exports = (appInfo) => {
     },
   }
 
+  config.jwt = {
+    //jwt配置项
+    secret: '123456',
+  }
+
   // 跨域
   config.cors = {
     origin: '*', // 表示允许的源

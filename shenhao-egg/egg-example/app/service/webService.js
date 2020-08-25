@@ -30,14 +30,14 @@ class WebService extends Service {
         newInfo,
         options,
       )
-      await this.setTags(pm_code, tags)
+      await this.setTags(pm_code, tags, 'video')
       return result.affectedRows === 1
     }
     if (!pm_code) {
       // 新增
       const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
       const result = await this.app.mysql.insert('video_table', newInfo)
-      await this.setTags(pm_code, tags)
+      await this.setTags(pm_code, tags, 'video')
       return result.affectedRows === 1
     }
   }
@@ -736,18 +736,19 @@ class WebService extends Service {
   }
 
   // 增加tag
-  async setTags(relation_pm_code, data) {
+  async setTags(relation_pm_code, data, type) {
     const options = {
       where: {
         relation_pm_code,
       },
     }
-    await this.app.mysql.update('tags_table', { deleted: 1 }, options)
+    await this.app.mysql.delete('tags_table', { relation_pm_code })
     return Promise.all(
       data.map(async (info) => {
         const newInfo = await this.ctx.service.fillUtil.fillNewRecord({
           relation_pm_code,
           text: info,
+          type,
         })
         return await this.app.mysql.insert('tags_table', newInfo)
       }),
@@ -950,6 +951,247 @@ class WebService extends Service {
       pm_code,
       deleted: 0,
     })
+
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // 用户列表
+  async getUserList({ username, current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = ['pm_code', 'username', 'name', 'create_time']
+
+    if (username) {
+      where.username = username
+      sqlWhere += ` and username='${username}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+
+    const list = (await this.app.mysql.select('user_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM user_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list,
+    }
+  }
+
+  // 获取用户详情
+  async getUserDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: ['pm_code', 'name', 'username', 'password', 'permissions'],
+    }
+    const result = (await this.app.mysql.select('user_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
+  }
+
+  // 删除用户
+  async deleteUser(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'user_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 新建和编辑新闻
+  async setNewsDetail(info, tags) {
+    const {
+      title,
+      auth,
+      text,
+      seo,
+      index_recommended,
+      type,
+      pm_code,
+      introduce,
+      number,
+    } = info
+    if (pm_code) {
+      // 编辑
+      const options = {
+        where: {
+          pm_code,
+        },
+      }
+      const newInfo = await this.ctx.service.fillUtil.fillModifyRecord(info)
+      const result = await this.app.mysql.update('news_table', newInfo, options)
+      await this.setTags(pm_code, tags, 'news')
+      return result.affectedRows === 1
+    }
+    if (!pm_code) {
+      // 新增
+      const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+      const result = await this.app.mysql.insert('news_table', newInfo)
+      await this.setTags(pm_code, tags, 'news')
+      return result.affectedRows === 1
+    }
+  }
+
+  // 获取新闻详情
+  async getNewsDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: [
+        'id',
+        'title',
+        'auth',
+        'text',
+        'seo',
+        'index_recommended',
+        'type',
+        'pm_code',
+        'introduce',
+        'img_pm_code',
+        'number',
+        'create_time',
+      ],
+    }
+    const result = (await this.app.mysql.select('news_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
+  }
+
+  // 获取新闻列表
+  async getNewsList({
+    title,
+    type,
+    index_recommended,
+    current = 1,
+    pageSize = 10,
+  }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'title',
+      'auth',
+      'seo',
+      'index_recommended',
+      'type',
+      'pm_code',
+      'introduce',
+      'img_pm_code',
+      'number',
+      'create_time',
+    ]
+
+    if (title) {
+      where.title = title
+      sqlWhere += ` and title='${title}'`
+    }
+    if (type) {
+      where.type = type
+      sqlWhere += ` and type='${type}'`
+    }
+    if (index_recommended) {
+      where.index_recommended = index_recommended
+      sqlWhere += ` and index_recommended='${index_recommended}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+    const list = (await this.app.mysql.select('news_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM news_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list: JSON.parse(JSON.stringify(list)),
+    }
+  }
+
+  // 删除新闻
+  async deleteNews(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'news_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 获取上一篇下一篇
+  async getLastNext(id) {
+    const last = await this.app.mysql.query(
+      `select pm_code as pmCode,title from news_table where id<${id} and deleted = 0 order by id desc limit 0,1`,
+    )
+    const next = await this.app.mysql.query(
+      `select pm_code as pmCode,title from news_table where id>${id} and deleted = 0 order by id asc limit 0,1`,
+    )
+
+    return {
+      last: JSON.parse(JSON.stringify(last))[0],
+      next: JSON.parse(JSON.stringify(next))[0],
+    }
+  }
+
+  // 新闻看过人数加1
+  async newsAddNumber(pmCode) {
+    return await this.app.mysql.query(
+      `update news_table set number=number+1 where pm_code='${pmCode}'`,
+    )
+  }
+
+  // 新闻相关推荐
+  async relatedRecommend(tags) {
+    if (tags.length === 0) {
+      return []
+    }
+    let sqlWhere = `deleted = 0 and type = 'news'`
+    for (let i = 0; i < tags.length; i++) {
+      if (i === 0) {
+        sqlWhere += ` and (text = '${tags[i].text}'`
+      }
+      if (i > 0) {
+        sqlWhere += ` or text = '${tags[i].text}'`
+      }
+      if (i === tags.length - 1) {
+        sqlWhere += `)`
+      }
+    }
+    sqlWhere += ` order by create_time desc `
+
+    const result = await this.app.mysql.query(
+      `select * FROM tags_table where ${sqlWhere} `,
+    )
 
     return JSON.parse(JSON.stringify(result))
   }
