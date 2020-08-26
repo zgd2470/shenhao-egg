@@ -37,7 +37,11 @@ class WebService extends Service {
       // 新增
       const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
       const result = await this.app.mysql.insert('video_table', newInfo)
-      await this.setTags(pm_code, tags, 'video')
+      const value = await this.app.mysql.query(`
+      select pm_code from video_table where id in (select max(id) from video_table  where deleted=0 )
+      `)
+      const newPmCode = JSON.parse(JSON.stringify(value))[0].pm_code
+      await this.setTags(newPmCode, tags, 'video')
       return result.affectedRows === 1
     }
   }
@@ -736,7 +740,7 @@ class WebService extends Service {
   }
 
   // 增加tag
-  async setTags(relation_pm_code, data, type) {
+  async setTags(relation_pm_code, data = [], type) {
     const options = {
       where: {
         relation_pm_code,
@@ -1045,7 +1049,11 @@ class WebService extends Service {
       // 新增
       const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
       const result = await this.app.mysql.insert('news_table', newInfo)
-      await this.setTags(pm_code, tags, 'news')
+      const value = await this.app.mysql.query(`
+      select pm_code from news_table where id in (select max(id) from news_table  where deleted=0 )
+      `)
+      const newPmCode = JSON.parse(JSON.stringify(value))[0].pm_code
+      await this.setTags(newPmCode, tags, 'news')
       return result.affectedRows === 1
     }
   }

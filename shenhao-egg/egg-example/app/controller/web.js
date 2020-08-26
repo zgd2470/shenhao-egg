@@ -1204,7 +1204,7 @@ class CustomController extends Controller {
       seo,
       index_recommended: indexRecommended,
       type,
-      imgPmCode: img_pm_code,
+      img_pm_code: imgPmCode,
       pm_code: pmCode,
       introduce,
       number,
@@ -1242,7 +1242,7 @@ class CustomController extends Controller {
       auth: result.auth,
       text: result.text,
       seo: result.seo,
-      index_recommended: result.indexRecommended,
+      indexRecommended: result.index_recommended,
       type: result.type,
       imgPmCode: result.img_pm_code,
       pm_code: result.pmCode,
@@ -1280,7 +1280,7 @@ class CustomController extends Controller {
           title: info.title,
           auth: info.auth,
           seo: info.seo,
-          imgPmCode: result.img_pm_code,
+          imgPmCode: info.img_pm_code,
           indexRecommended: info.index_recommended,
           type: info.type,
           introduce: info.introduce,
@@ -1305,7 +1305,7 @@ class CustomController extends Controller {
   async deleteNews() {
     const { query } = this.ctx.request
     const { pmCode } = query
-    const result = await this.ctx.service.webService.deleteBanner(pmCode)
+    const result = await this.ctx.service.webService.deleteNews(pmCode)
     if (!result) {
       this.ctx.body = {
         success: false,
@@ -1339,7 +1339,7 @@ class CustomController extends Controller {
       auth: result.auth,
       text: result.text,
       seo: result.seo,
-      index_recommended: result.indexRecommended,
+      indexRecommended: result.index_recommended,
       type: result.type,
       imgPmCode: result.img_pm_code,
       pm_code: result.pmCode,
@@ -1386,9 +1386,7 @@ class CustomController extends Controller {
     const result = await this.ctx.service.webService.relatedRecommend(tags)
     const newResult = []
     result.forEach((info) => {
-      if (info.relation_pm_code !== pmCode) {
-        newResult.push(info.relation_pm_code)
-      }
+      newResult.push(info.relation_pm_code)
     })
 
     const pmCodeList = [...new Set(newResult)]
