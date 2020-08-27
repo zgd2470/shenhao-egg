@@ -140,7 +140,13 @@ class WebService extends Service {
   }
 
   // 获取视频列表
-  async getVideoList({ title, isRecommended, current = 1, pageSize = 10 }) {
+  async getVideoList({
+    title,
+    isRecommended,
+    current = 1,
+    pageSize = 10,
+    tagsPmCodeList,
+  }) {
     let sqlWhere = 'deleted = 0'
 
     const where = {
@@ -159,6 +165,8 @@ class WebService extends Service {
       'video_path',
       'sorting',
       'is_guess_like',
+      'is_video_link',
+      'video_link',
     ]
 
     if (title) {
@@ -169,6 +177,22 @@ class WebService extends Service {
       where.is_recommended = isRecommended
       sqlWhere += ` and is_recommended='${isRecommended}'`
     }
+    if (tagsPmCodeList.length) {
+      for (let i = 0; i < tagsPmCodeList.length; i++) {
+        if (i === 0) {
+          sqlWhere += ` and (pm_code = '${tagsPmCodeList[i]}'`
+          where.pm_code = [`${tagsPmCodeList[i]}`]
+        }
+        if (i > 0) {
+          sqlWhere += ` or pm_code = '${tagsPmCodeList[i]}'`
+          where.pm_code.push(`${tagsPmCodeList[i]}`)
+        }
+        if (i === tagsPmCodeList.length - 1) {
+          sqlWhere += `)`
+        }
+      }
+    }
+
     const option = {
       columns,
       where,
@@ -236,6 +260,8 @@ class WebService extends Service {
         'video_path',
         'is_guess_like',
         'sorting',
+        'is_video_link',
+        'video_link',
       ],
     }
     const result = (await this.app.mysql.select('video_table', option)) || []
@@ -761,7 +787,7 @@ class WebService extends Service {
     })
   }
 
-  // 获取tag
+  // relation_pm_code获取tag
   async getTags(relation_pm_code) {
     const where = {
       deleted: 0,
@@ -769,6 +795,22 @@ class WebService extends Service {
     }
     const option = {
       columns: ['text'],
+      where,
+    }
+
+    const result = (await this.app.mysql.select('tags_table', option)) || []
+    return JSON.parse(JSON.stringify(result))
+  }
+
+  // text获取tag
+  async getTagsText(text) {
+    const where = {
+      deleted: 0,
+      text,
+      type: 'video',
+    }
+    const option = {
+      columns: ['relation_pm_code'],
       where,
     }
 
@@ -960,18 +1002,23 @@ class WebService extends Service {
   }
 
   // 用户列表
-  async getUserList({ username, current = 1, pageSize = 10 }) {
+  async getUserList({ username, current = 1, pageSize = 10, department }) {
     let sqlWhere = 'deleted = 0'
 
     const where = {
       deleted: 0,
     }
 
-    const columns = ['pm_code', 'username', 'name', 'create_time']
+    const columns = ['pm_code', 'username', 'name', 'create_time', 'department']
 
     if (username) {
       where.username = username
       sqlWhere += ` and username='${username}'`
+    }
+
+    if (department) {
+      where.department = department
+      sqlWhere += ` and department='${department}'`
     }
 
     const option = {
@@ -999,7 +1046,14 @@ class WebService extends Service {
       where: {
         pm_code: pmCode,
       },
-      columns: ['pm_code', 'name', 'username', 'password', 'permissions'],
+      columns: [
+        'pm_code',
+        'name',
+        'username',
+        'password',
+        'permissions',
+        'department',
+      ],
     }
     const result = (await this.app.mysql.select('user_table', option)) || []
     return JSON.parse(JSON.stringify(result))[0]
@@ -1157,12 +1211,12 @@ class WebService extends Service {
   }
 
   // 获取上一篇下一篇
-  async getLastNext(id) {
-    const last = await this.app.mysql.query(
-      `select pm_code as pmCode,title from news_table where id<${id} and deleted = 0 order by id desc limit 0,1`,
-    )
+  async getLastNext(id, type) {
     const next = await this.app.mysql.query(
-      `select pm_code as pmCode,title from news_table where id>${id} and deleted = 0 order by id asc limit 0,1`,
+      `select pm_code as pmCode,title from news_table where id<${id} and deleted = 0 and type=${type} order by id desc limit 0,1`,
+    )
+    const last = await this.app.mysql.query(
+      `select pm_code as pmCode,title from news_table where id>${id} and deleted = 0 and type=${type} order by id asc limit 0,1`,
     )
 
     return {
@@ -1173,9 +1227,11 @@ class WebService extends Service {
 
   // 新闻看过人数加1
   async newsAddNumber(pmCode) {
-    return await this.app.mysql.query(
+    const result = await this.app.mysql.query(
       `update news_table set number=number+1 where pm_code='${pmCode}'`,
     )
+
+    return result
   }
 
   // 新闻相关推荐
@@ -1195,7 +1251,7 @@ class WebService extends Service {
         sqlWhere += `)`
       }
     }
-    sqlWhere += ` order by create_time desc `
+    sqlWhere += ` order by create_time asc `
 
     const result = await this.app.mysql.query(
       `select * FROM tags_table where ${sqlWhere} `,

@@ -163,7 +163,7 @@ module.exports = (app) => {
   router.get('/api/getWebSiteNewsDetail', controller.web.getWebSiteNewsDetail)
 
   // 官网新闻观看加1
-  router.get('/api/newsAddNumber', controller.web.newsAddNumber)
+  router.post('/api/newsAddNumber', controller.web.newsAddNumber)
 
   // 相关推荐
   router.get('/api/relatedRecommend', controller.web.relatedRecommend)

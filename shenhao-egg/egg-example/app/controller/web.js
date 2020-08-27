@@ -36,6 +36,8 @@ class CustomController extends Controller {
       videoPath,
       sorting,
       isGuessLike,
+      videoLink,
+      isVideoLink,
       tags,
     } = body
     const info = {
@@ -49,6 +51,8 @@ class CustomController extends Controller {
       video_pm_code: videoPmCode,
       pm_code: pmCode,
       video_path: videoPath,
+      video_link: videoLink,
+      is_video_link: isVideoLink,
     }
     const result = await this.ctx.service.webService.setVideoDetail(info, tags)
     if (!result) {
@@ -67,13 +71,39 @@ class CustomController extends Controller {
   // 视频列表
   async getVideoList() {
     const { query } = this.ctx.request
-    const { title, isRecommended, current = 1, pageSize = 500 } = query
+    const { title, isRecommended, current = 1, pageSize = 500, text } = query
+    let tagsList = []
+    if (text) {
+      tagsList = await this.ctx.service.webService.getTagsText(text)
+      if (!tagsList.length) {
+        this.ctx.body = {
+          success: true,
+          message: '操作成功',
+          data: {
+            total: 0,
+            list: [],
+          },
+        }
+        return
+      }
+    }
+    const newResult = []
+    console.log('-----')
+    console.log(tagsList)
+    tagsList.forEach((info) => {
+      newResult.push(info.relation_pm_code)
+    })
+
+    const tagsPmCodeList = [...new Set(newResult)]
+
+    console.log(tagsPmCodeList)
 
     const data = await this.ctx.service.webService.getVideoList({
       title,
       isRecommended,
       current,
       pageSize,
+      tagsPmCodeList,
     })
 
     return Promise.all(
@@ -91,6 +121,8 @@ class CustomController extends Controller {
           videoPath: info.video_path,
           sorting: info.sorting,
           isGuessLike: info.is_guess_like,
+          isVideoLink: info.is_video_link,
+          videoLink: info.video_link,
           createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
           tags: newTags,
         }
@@ -132,6 +164,8 @@ class CustomController extends Controller {
       videoPath: result.video_path,
       sorting: result.sorting,
       isGuessLike: result.is_guess_like,
+      isVideoLink: result.is_video_link,
+      videoLink: result.video_link,
       tags: newTags,
     }
     this.ctx.body = {
@@ -630,6 +664,7 @@ class CustomController extends Controller {
       ip,
       time,
     }
+
     const queryResult = await this.ctx.service.webService.queryHasStatistical(
       info,
     )
@@ -641,6 +676,7 @@ class CustomController extends Controller {
       return
     }
     const result = await this.ctx.service.webService.setStatistical(info)
+
     if (!result) {
       this.ctx.body = {
         success: false,
@@ -1075,7 +1111,14 @@ class CustomController extends Controller {
   // 新增用户
   async setUser() {
     const { body = {} } = this.ctx.request
-    const { username, password, permissions = [], name, pmCode } = body
+    const {
+      username,
+      password,
+      permissions = [],
+      name,
+      pmCode,
+      department,
+    } = body
 
     const queryResult = await this.ctx.service.webService.queryUserName(
       username,
@@ -1093,6 +1136,7 @@ class CustomController extends Controller {
       permissions: permissions.length ? permissions.join(',') : '',
       name,
       pm_code: pmCode,
+      department,
     }
     const result = await this.ctx.service.webService.setUser(info)
     if (!result) {
@@ -1112,12 +1156,13 @@ class CustomController extends Controller {
   // 评论列表
   async getUserList() {
     const { query } = this.ctx.request
-    const { username, current = 1, pageSize = 10 } = query
+    const { username, current = 1, pageSize = 10, department } = query
 
     const data = await this.ctx.service.webService.getUserList({
       username,
       current,
       pageSize,
+      department,
     })
     const newData = {
       total: data.total || 0,
@@ -1126,6 +1171,7 @@ class CustomController extends Controller {
           pmCode: info.pm_code,
           name: info.name,
           username: info.username,
+          department: info.department,
           createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
         }
       }),
@@ -1154,6 +1200,7 @@ class CustomController extends Controller {
       name: result.name,
       username: result.username,
       password: result.password,
+      department: result.department,
       permissions: result.permissions.split(',') || [],
     }
     this.ctx.body = {
@@ -1285,7 +1332,9 @@ class CustomController extends Controller {
           type: info.type,
           introduce: info.introduce,
           number: info.number,
-          createTime: moment(info.create_time).format('YYYY-MM-DD HH:mm:ss'),
+          createTime: info.create_time
+            ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+            : '',
           tags: newTags,
         }
       }),
@@ -1342,17 +1391,19 @@ class CustomController extends Controller {
       indexRecommended: result.index_recommended,
       type: result.type,
       imgPmCode: result.img_pm_code,
-      pm_code: result.pmCode,
+      pmCode: result.pm_code,
       introduce: result.introduce,
       number: result.number,
-      create_time: result.createTime,
+      createTime: result.create_time
+        ? moment(result.create_time).format('YYYY-MM-DD HH:mm:ss')
+        : '',
       tags: newTags,
     }
 
     const {
       last = null,
       next = null,
-    } = await this.ctx.service.webService.getLastNext(result.id)
+    } = await this.ctx.service.webService.getLastNext(result.id, result.type)
 
     this.ctx.body = {
       success: true,
@@ -1400,7 +1451,9 @@ class CustomController extends Controller {
         if (info.type === type) {
           list.push({
             title: info.title,
-            create_time: info.create_time,
+            createTime: info.create_time
+              ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+              : '',
             number: info.number,
             introduce: info.introduce,
             pmCode: info.pm_code,
@@ -1411,7 +1464,9 @@ class CustomController extends Controller {
       this.ctx.body = {
         success: true,
         message: '操作成功',
-        data: list,
+        data: list.sort(function (a, b) {
+          return a.createTime < b.createTime ? 1 : -1
+        }),
       }
     })
   }
