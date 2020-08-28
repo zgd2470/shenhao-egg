@@ -88,15 +88,11 @@ class CustomController extends Controller {
       }
     }
     const newResult = []
-    console.log('-----')
-    console.log(tagsList)
     tagsList.forEach((info) => {
       newResult.push(info.relation_pm_code)
     })
 
     const tagsPmCodeList = [...new Set(newResult)]
-
-    console.log(tagsPmCodeList)
 
     const data = await this.ctx.service.webService.getVideoList({
       title,
@@ -763,13 +759,24 @@ class CustomController extends Controller {
   // 预约演示列表
   async getDemonstrateList() {
     const { query } = this.ctx.request
-    const { phone, isDeal, current = 1, pageSize = 10 } = query
+    const {
+      phone,
+      isDeal,
+      current = 1,
+      pageSize = 10,
+      dealResult,
+      startTime = '',
+      endTime = '',
+    } = query
 
     const data = await this.ctx.service.webService.getDemonstrateList({
       phone,
       is_deal: isDeal,
       current,
       pageSize,
+      deal_result: dealResult,
+      startTime,
+      endTime,
     })
     const newData = {
       total: data.total || 0,
@@ -784,6 +791,7 @@ class CustomController extends Controller {
           industry: info.industry,
           isDeal: info.is_deal,
           createTime: info.create_time,
+          dealResult: info.deal_result,
         }
       }),
     }
@@ -796,10 +804,13 @@ class CustomController extends Controller {
 
   // 处理预约演示
   async dealDemonstrate() {
-    const { query } = this.ctx.request
-    const { pmCode } = query
-    const result = await this.ctx.service.webService.dealDemonstrate(pmCode)
-    if (!result) {
+    const { body } = this.ctx.request
+    const { pmCode, dealResult } = body
+    const newResult = await this.ctx.service.webService.dealDemonstrate(
+      pmCode,
+      dealResult,
+    )
+    if (!newResult) {
       this.ctx.body = {
         success: false,
         message: '操作失败',
@@ -849,13 +860,24 @@ class CustomController extends Controller {
   // 成为合作伙伴列表
   async getPartnerList() {
     const { query } = this.ctx.request
-    const { phone, isDeal, current = 1, pageSize = 10 } = query
+    const {
+      phone,
+      isDeal,
+      current = 1,
+      pageSize = 10,
+      dealResult,
+      startTime = '',
+      endTime = '',
+    } = query
 
     const data = await this.ctx.service.webService.getPartnerList({
       phone,
       is_deal: isDeal,
       current,
       pageSize,
+      deal_result: dealResult,
+      startTime,
+      endTime,
     })
     const newData = {
       total: data.total || 0,
@@ -869,6 +891,7 @@ class CustomController extends Controller {
           companyPhone: info.company_phone,
           isDeal: info.is_deal,
           createTime: info.create_time,
+          dealResult: info.deal_result,
         }
       }),
     }
@@ -881,10 +904,13 @@ class CustomController extends Controller {
 
   // 处理合作伙伴
   async dealPartner() {
-    const { query } = this.ctx.request
-    const { pmCode } = query
-    const result = await this.ctx.service.webService.dealPartner(pmCode)
-    if (!result) {
+    const { body } = this.ctx.request
+    const { pmCode, dealResult } = body
+    const newResult = await this.ctx.service.webService.dealPartner(
+      pmCode,
+      dealResult,
+    )
+    if (!newResult) {
       this.ctx.body = {
         success: false,
         message: '操作失败',
@@ -935,13 +961,24 @@ class CustomController extends Controller {
   // 试用申请列表
   async getTrialList() {
     const { query } = this.ctx.request
-    const { phone, isDeal, current = 1, pageSize = 10 } = query
+    const {
+      phone,
+      isDeal,
+      current = 1,
+      pageSize = 10,
+      dealResult,
+      startTime = '',
+      endTime = '',
+    } = query
 
     const data = await this.ctx.service.webService.getTrialList({
       phone,
       is_deal: isDeal,
       current,
       pageSize,
+      deal_result: dealResult,
+      startTime,
+      endTime,
     })
     const newData = {
       total: data.total || 0,
@@ -956,6 +993,7 @@ class CustomController extends Controller {
           email: info.email,
           isDeal: info.is_deal,
           createTime: info.create_time,
+          dealResult: info.deal_result,
         }
       }),
     }
@@ -968,10 +1006,13 @@ class CustomController extends Controller {
 
   // 处理试用申请
   async dealTrial() {
-    const { query } = this.ctx.request
-    const { pmCode } = query
-    const result = await this.ctx.service.webService.dealTrial(pmCode)
-    if (!result) {
+    const { body } = this.ctx.request
+    const { pmCode, dealResult } = body
+    const newResult = await this.ctx.service.webService.dealTrial(
+      pmCode,
+      dealResult,
+    )
+    if (!newResult) {
       this.ctx.body = {
         success: false,
         message: '操作失败',
@@ -1242,6 +1283,7 @@ class CustomController extends Controller {
       pmCode,
       tags,
       introduce,
+      releaseTime,
       number = 0,
     } = body
     const info = {
@@ -1255,6 +1297,7 @@ class CustomController extends Controller {
       pm_code: pmCode,
       introduce,
       number,
+      release_time: releaseTime,
     }
     const result = await this.ctx.service.webService.setNewsDetail(info, tags)
     if (!result) {
@@ -1295,7 +1338,8 @@ class CustomController extends Controller {
       pm_code: result.pmCode,
       introduce: result.introduce,
       number: result.number,
-      create_time: result.createTime,
+      createTime: result.create_time,
+      releaseTime: result.release_time,
       tags: newTags,
     }
     this.ctx.body = {
@@ -1308,7 +1352,15 @@ class CustomController extends Controller {
   // 新闻列表
   async getNewsList() {
     const { query } = this.ctx.request
-    const { title, type, indexRecommended, current = 1, pageSize = 500 } = query
+    const {
+      title,
+      type,
+      indexRecommended,
+      current = 1,
+      pageSize = 500,
+      startTime = '',
+      endTime = '',
+    } = query
 
     const data = await this.ctx.service.webService.getNewsList({
       title,
@@ -1316,6 +1368,8 @@ class CustomController extends Controller {
       index_recommended: indexRecommended,
       current,
       pageSize,
+      startTime,
+      endTime,
     })
 
     return Promise.all(
@@ -1332,6 +1386,9 @@ class CustomController extends Controller {
           type: info.type,
           introduce: info.introduce,
           number: info.number,
+          releaseTime: info.release_time
+            ? moment(info.release_time).format('YYYY-MM-DD')
+            : '',
           createTime: info.create_time
             ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
             : '',
@@ -1397,6 +1454,10 @@ class CustomController extends Controller {
       createTime: result.create_time
         ? moment(result.create_time).format('YYYY-MM-DD HH:mm:ss')
         : '',
+      releaseTime: result.release_time
+        ? moment(result.release_time).format('YYYY-MM-DD')
+        : '',
+
       tags: newTags,
     }
 
@@ -1447,10 +1508,17 @@ class CustomController extends Controller {
       }),
     ).then((result) => {
       const list = []
-      result.forEach((info) => {
+      const sortResult = result.sort(function (a, b) {
+        return a.release_time < b.release_time ? 1 : -1
+      })
+
+      sortResult.forEach((info) => {
         if (info.type === type) {
           list.push({
             title: info.title,
+            releaseTime: info.release_time
+              ? moment(info.release_time).format('YYYY-MM-DD')
+              : '',
             createTime: info.create_time
               ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
               : '',
@@ -1464,9 +1532,7 @@ class CustomController extends Controller {
       this.ctx.body = {
         success: true,
         message: '操作成功',
-        data: list.sort(function (a, b) {
-          return a.createTime < b.createTime ? 1 : -1
-        }),
+        data: list,
       }
     })
   }

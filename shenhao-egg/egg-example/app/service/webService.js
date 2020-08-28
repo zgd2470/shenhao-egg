@@ -538,7 +538,15 @@ class WebService extends Service {
   }
 
   // 预约演示列表
-  async getDemonstrateList({ phone, is_deal, current = 1, pageSize = 10 }) {
+  async getDemonstrateList({
+    phone,
+    is_deal,
+    current = 1,
+    pageSize = 10,
+    deal_result,
+    startTime,
+    endTime,
+  }) {
     let sqlWhere = 'deleted = 0'
 
     const where = {
@@ -555,6 +563,7 @@ class WebService extends Service {
       'industry',
       'is_deal',
       'create_time',
+      'deal_result',
     ]
 
     if (phone) {
@@ -567,6 +576,18 @@ class WebService extends Service {
       sqlWhere += ` and is_deal='${is_deal}'`
     }
 
+    if (deal_result) {
+      where.deal_result = deal_result
+      sqlWhere += ` and deal_result='${deal_result}'`
+    }
+
+    if (startTime) {
+      sqlWhere += ` and create_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and create_time <='${endTime}'`
+    }
+
     const option = {
       columns,
       where,
@@ -576,7 +597,10 @@ class WebService extends Service {
     }
 
     const list =
-      (await this.app.mysql.select('demonstrate_table', option)) || []
+      (await this.app.mysql.query(
+        `select * FROM demonstrate_table where ${sqlWhere}`,
+        option,
+      )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM demonstrate_table where ${sqlWhere} `,
     )
@@ -588,7 +612,7 @@ class WebService extends Service {
   }
 
   // 处理预约演示
-  async dealDemonstrate(pmCode) {
+  async dealDemonstrate(pmCode, deal_result) {
     const options = {
       where: {
         pm_code: pmCode,
@@ -596,7 +620,7 @@ class WebService extends Service {
     }
     const result = await this.app.mysql.update(
       'demonstrate_table',
-      { is_deal: '1' },
+      { is_deal: '1', deal_result },
       options,
     )
     return result.affectedRows === 1
@@ -611,7 +635,15 @@ class WebService extends Service {
   }
 
   // 合作伙伴列表
-  async getPartnerList({ phone, is_deal, current = 1, pageSize = 10 }) {
+  async getPartnerList({
+    phone,
+    is_deal,
+    current = 1,
+    pageSize = 10,
+    deal_result,
+    startTime,
+    endTime,
+  }) {
     let sqlWhere = 'deleted = 0'
 
     const where = {
@@ -627,6 +659,7 @@ class WebService extends Service {
       'company_phone',
       'is_deal',
       'create_time',
+      'deal_result',
     ]
 
     if (phone) {
@@ -639,6 +672,18 @@ class WebService extends Service {
       sqlWhere += ` and is_deal='${is_deal}'`
     }
 
+    if (deal_result) {
+      where.deal_result = deal_result
+      sqlWhere += ` and deal_result='${deal_result}'`
+    }
+
+    if (startTime) {
+      sqlWhere += ` and create_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and create_time <='${endTime}'`
+    }
+
     const option = {
       columns,
       where,
@@ -647,7 +692,11 @@ class WebService extends Service {
       offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
     }
 
-    const list = (await this.app.mysql.select('partner_table', option)) || []
+    const list =
+      (await this.app.mysql.query(
+        `select * FROM partner_table where ${sqlWhere}`,
+        option,
+      )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM partner_table where ${sqlWhere} `,
     )
@@ -659,7 +708,7 @@ class WebService extends Service {
   }
 
   // 处理合作伙伴
-  async dealPartner(pmCode) {
+  async dealPartner(pmCode, deal_result) {
     const options = {
       where: {
         pm_code: pmCode,
@@ -667,7 +716,7 @@ class WebService extends Service {
     }
     const result = await this.app.mysql.update(
       'partner_table',
-      { is_deal: '1' },
+      { is_deal: '1', deal_result },
       options,
     )
     return result.affectedRows === 1
@@ -692,7 +741,15 @@ class WebService extends Service {
   }
 
   // 试用申请列表
-  async getTrialList({ phone, is_deal, current = 1, pageSize = 10 }) {
+  async getTrialList({
+    phone,
+    is_deal,
+    current = 1,
+    pageSize = 10,
+    deal_result,
+    startTime,
+    endTime,
+  }) {
     let sqlWhere = 'deleted = 0'
 
     const where = {
@@ -709,6 +766,7 @@ class WebService extends Service {
       'email',
       'is_deal',
       'create_time',
+      'deal_result',
     ]
 
     if (phone) {
@@ -721,6 +779,18 @@ class WebService extends Service {
       sqlWhere += ` and is_deal='${is_deal}'`
     }
 
+    if (deal_result) {
+      where.deal_result = deal_result
+      sqlWhere += ` and deal_result='${deal_result}'`
+    }
+
+    if (startTime) {
+      sqlWhere += ` and create_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and create_time <='${endTime}'`
+    }
+
     const option = {
       columns,
       where,
@@ -729,7 +799,11 @@ class WebService extends Service {
       offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
     }
 
-    const list = (await this.app.mysql.select('trial_table', option)) || []
+    const list =
+      (await this.app.mysql.query(
+        `select * FROM trial_table where ${sqlWhere}`,
+        option,
+      )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM trial_table where ${sqlWhere} `,
     )
@@ -751,7 +825,7 @@ class WebService extends Service {
   }
 
   // 处理试用申请
-  async dealTrial(pmCode) {
+  async dealTrial(pmCode, deal_result) {
     const options = {
       where: {
         pm_code: pmCode,
@@ -759,7 +833,7 @@ class WebService extends Service {
     }
     const result = await this.app.mysql.update(
       'trial_table',
-      { is_deal: '1' },
+      { is_deal: '1', deal_result },
       options,
     )
     return result.affectedRows === 1
@@ -1086,6 +1160,7 @@ class WebService extends Service {
       pm_code,
       introduce,
       number,
+      release_time,
     } = info
     if (pm_code) {
       // 编辑
@@ -1131,6 +1206,7 @@ class WebService extends Service {
         'img_pm_code',
         'number',
         'create_time',
+        'release_time',
       ],
     }
     const result = (await this.app.mysql.select('news_table', option)) || []
@@ -1144,6 +1220,8 @@ class WebService extends Service {
     index_recommended,
     current = 1,
     pageSize = 10,
+    startTime,
+    endTime,
   }) {
     let sqlWhere = 'deleted = 0'
 
@@ -1177,6 +1255,13 @@ class WebService extends Service {
       sqlWhere += ` and index_recommended='${index_recommended}'`
     }
 
+    if (startTime) {
+      sqlWhere += ` and release_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and release_time <='${endTime}'`
+    }
+
     const option = {
       columns,
       where,
@@ -1184,7 +1269,14 @@ class WebService extends Service {
       limit: Number(pageSize), // 返回数据量
       offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
     }
-    const list = (await this.app.mysql.select('news_table', option)) || []
+    sqlWhere += ` order by create_time desc limit ${
+      (Number(current) - 1) * Number(pageSize)
+    },${Number(pageSize)}`
+
+    const list =
+      (await this.app.mysql.query(
+        `select * FROM news_table where ${sqlWhere} `,
+      )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM news_table where ${sqlWhere} `,
     )

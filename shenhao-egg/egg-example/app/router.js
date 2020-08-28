@@ -97,7 +97,7 @@ module.exports = (app) => {
   router.get('/api/getDemonstrateList', controller.web.getDemonstrateList)
 
   // 处理预约演示
-  router.get('/api/dealDemonstrate', controller.web.dealDemonstrate)
+  router.post('/api/dealDemonstrate', controller.web.dealDemonstrate)
 
   // 成为合作伙伴
   router.post('/api/setPartner', controller.web.setPartner)
@@ -106,7 +106,7 @@ module.exports = (app) => {
   router.get('/api/getPartnerList', controller.web.getPartnerList)
 
   // 处理合作伙伴
-  router.get('/api/dealPartner', controller.web.dealPartner)
+  router.post('/api/dealPartner', controller.web.dealPartner)
 
   // 试用申请
   router.post('/api/setTrial', controller.web.setTrial)
@@ -115,7 +115,7 @@ module.exports = (app) => {
   router.get('/api/getTrialList', controller.web.getTrialList)
 
   // 处理试用申请
-  router.get('/api/dealTrial', controller.web.dealTrial)
+  router.post('/api/dealTrial', controller.web.dealTrial)
 
   // 新建和编辑Banner
   router.post('/api/setBanner', controller.web.setBanner)
