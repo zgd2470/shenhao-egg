@@ -168,6 +168,57 @@ module.exports = (app) => {
   // 相关推荐
   router.get('/api/relatedRecommend', controller.web.relatedRecommend)
 
+  // 批量处理预约演示
+  router.post('/api/batchDealDemonstrate', controller.web.batchDealDemonstrate)
+
+  // 批量处理合作伙伴
+  router.post('/api/batchDealPartner', controller.web.batchDealPartner)
+
+  // 批量处理试用申请
+  router.post('/api/batchDealTrial', controller.web.batchDealTrial)
+
+  // 批量预约演示导出
+  router.get(
+    '/api/batchExportDemonstrate',
+    controller.file.batchExportDemonstrate,
+  )
+
+  // 批量预约演示导出
+  router.get(
+    '/api/batchExportSearchDemonstrate',
+    controller.file.batchExportSearchDemonstrate,
+  )
+
+  // 批量预约演示导出
+  router.get('/api/batchExportPartner', controller.file.batchExportPartner)
+
+  // 批量预约演示导出
+  router.get(
+    '/api/batchExportSearchPartner',
+    controller.file.batchExportSearchPartner,
+  )
+
+  // 批量试用申请导出
+  router.get('/api/batchExportTrial', controller.file.batchExportTrial)
+
+  // 批量试用申请导出
+  router.get(
+    '/api/batchExportSearchTrial',
+    controller.file.batchExportSearchTrial,
+  )
+
+  // 新增活动
+  router.post('/api/setActivity', controller.web.setActivity)
+
+  // 活动列表
+  router.get('/api/getActivityList', controller.web.getActivityList)
+
+  // 删除活动
+  router.get('/api/deleteActivity', controller.web.deleteActivity)
+
+  // 获取活动详情
+  router.get('/api/getActivityDetail', controller.web.getActivityDetail)
+
   // // 导入中奖名单表格
   // router.post('/api/import', controller.file.import)
 

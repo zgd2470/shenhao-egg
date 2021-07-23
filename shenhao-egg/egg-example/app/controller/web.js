@@ -654,23 +654,23 @@ class CustomController extends Controller {
     const { typeOne, typeTwo, typeThree, ip } = body
     const time = moment().format('YYYY-MM-DD')
     const info = {
-      type_one: typeOne,
+      type_one: typeOne, // 0 pc 页面  1 pc 按钮   2 小程序页面
       type_two: typeTwo,
       type_three: typeThree,
-      ip,
+
       time,
     }
 
-    const queryResult = await this.ctx.service.webService.queryHasStatistical(
-      info,
-    )
-    if (queryResult) {
-      this.ctx.body = {
-        message: '已记录过',
-        success: false,
-      }
-      return
-    }
+    // const queryResult = await this.ctx.service.webService.queryHasStatistical(
+    //   info,
+    // )
+    // if (queryResult) {
+    //   this.ctx.body = {
+    //     message: '已记录过',
+    //     success: false,
+    //   }
+    //   return
+    // }
     const result = await this.ctx.service.webService.setStatistical(info)
 
     if (!result) {
@@ -715,14 +715,8 @@ class CustomController extends Controller {
   // 预约演示提交
   async setDemonstrate() {
     const { body = {} } = this.ctx.request
-    const {
-      name,
-      phone,
-      position,
-      companyName,
-      companyAddress,
-      industry,
-    } = body
+    const { name, phone, position, companyName, companyAddress, industry } =
+      body
     const info = {
       name,
       phone,
@@ -821,6 +815,31 @@ class CustomController extends Controller {
       success: true,
       message: '操作成功',
     }
+  }
+
+  // 批量处理预约演示
+  async batchDealDemonstrate() {
+    const { body } = this.ctx.request
+    const { pmCodes = [], dealResult } = body
+    return Promise.all(
+      pmCodes.map(async (info) => {
+        const result = await this.ctx.service.webService.getDemonstrateDetail(
+          info,
+        )
+        if (Number(result.is_deal) === 0) {
+          return await this.ctx.service.webService.dealDemonstrate(
+            info,
+            dealResult,
+          )
+        }
+        return null
+      }),
+    ).then(() => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+      }
+    })
   }
 
   // 成为合作伙伴
@@ -923,6 +942,26 @@ class CustomController extends Controller {
     }
   }
 
+  // 批量处理合作伙伴
+  async batchDealPartner() {
+    const { body } = this.ctx.request
+    const { pmCodes = [], dealResult } = body
+    return Promise.all(
+      pmCodes.map(async (info) => {
+        const result = await this.ctx.service.webService.getPartnerDetail(info)
+        if (Number(result.is_deal) === 0) {
+          return await this.ctx.service.webService.dealPartner(info, dealResult)
+        }
+        return null
+      }),
+    ).then(() => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+      }
+    })
+  }
+
   // 试用申请
   async setTrial() {
     const { body = {} } = this.ctx.request
@@ -1023,6 +1062,26 @@ class CustomController extends Controller {
       success: true,
       message: '操作成功',
     }
+  }
+
+  // 批量处理试用申请
+  async batchDealTrial() {
+    const { body } = this.ctx.request
+    const { pmCodes = [], dealResult } = body
+    return Promise.all(
+      pmCodes.map(async (info) => {
+        const result = await this.ctx.service.webService.getTrialDetail(info)
+        if (Number(result.is_deal) === 0) {
+          return await this.ctx.service.webService.dealTrial(info, dealResult)
+        }
+        return null
+      }),
+    ).then(() => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+      }
+    })
   }
 
   // 编辑 新增Banner
@@ -1461,10 +1520,8 @@ class CustomController extends Controller {
       tags: newTags,
     }
 
-    const {
-      last = null,
-      next = null,
-    } = await this.ctx.service.webService.getLastNext(result.id, result.type)
+    const { last = null, next = null } =
+      await this.ctx.service.webService.getLastNext(result.id, result.type)
 
     this.ctx.body = {
       success: true,
@@ -1535,6 +1592,142 @@ class CustomController extends Controller {
         data: list,
       }
     })
+  }
+
+  // 新增活动
+  async setActivity() {
+    const { body = {} } = this.ctx.request
+    const {
+      title,
+      introduction,
+      course,
+      pmCode,
+      place,
+      activityDate,
+      startTime,
+      endTime,
+      resultContent,
+      resultImg,
+      imgPmCode,
+      articleUrl,
+    } = body
+    const info = {
+      title,
+      introduction,
+      course,
+      place,
+      activity_date: activityDate,
+      start_time: startTime,
+      end_time: endTime,
+      result_content: resultContent,
+      result_img: resultImg,
+      img_pm_code: imgPmCode,
+      pm_code: pmCode,
+      article_url: articleUrl,
+    }
+    const result = await this.ctx.service.webService.setActivity(info)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 活动列表
+  async getActivityList() {
+    const { query } = this.ctx.request
+    const { current = 1, pageSize = 500 } = query
+    let tagsList = []
+
+    const data = await this.ctx.service.webService.getActivityList({
+      current,
+      pageSize,
+    })
+
+    return Promise.all(
+      data.list.map(async (info) => {
+        const tags = await this.ctx.service.webService.getTags(info.pm_code)
+        const newTags = tags.map((info) => info.text)
+        return {
+          pmCode: info.pm_code,
+          imgPmCode: info.img_pm_code,
+          title: info.title,
+          introduction: info.introduction,
+          course: info.course,
+          place: info.place,
+          activityDate: moment(info.activity_date).format('YYYY-MM-DD'),
+          startTime: moment(info.start_time).format('HH:mm:ss'),
+          endTime: moment(info.end_time).format('HH:mm:ss'),
+          articleUrl: info.article_url,
+        }
+      }),
+    ).then((result) => {
+      this.ctx.body = {
+        success: true,
+        message: '操作成功',
+        data: {
+          total: data.total || 0,
+          list: result,
+        },
+      }
+    })
+  }
+
+  // 删除活动
+  async deleteActivity() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.deleteActivity(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '操作失败',
+      }
+      return
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+    }
+  }
+
+  // 获取活动详情
+  async getActivityDetail() {
+    const { query } = this.ctx.request
+    const { pmCode } = query
+    const result = await this.ctx.service.webService.getVideoDetail(pmCode)
+    if (!result) {
+      this.ctx.body = {
+        success: false,
+        message: '获取失败',
+      }
+      return
+    }
+    const data = {
+      pmCode: info.pm_code,
+      imgPmCode: info.img_pm_code,
+      title: info.title,
+      introduction: info.introduction,
+      course: info.course,
+      place: info.place,
+      activityDate: moment(info.activity_date).format('YYYY-MM-DD'),
+      startTime: moment(info.start_time).format('HH:mm:ss'),
+      endTime: moment(info.end_time).format('HH:mm:ss'),
+      articleUrl: info.article_url,
+      resultContent: info.result_content || '',
+      resultImg: info.result_img || '',
+    }
+    this.ctx.body = {
+      success: true,
+      message: '操作成功',
+      data,
+    }
   }
 }
 

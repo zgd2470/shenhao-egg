@@ -16,7 +16,7 @@ const sendToWormhole = require('stream-wormhole')
 const md5 = require('md5')
 
 const xlsx = require('xlsx')
-
+const moment = require('moment')
 const myPicPath = './app/public/pic'
 const myExcelPath = './app/public/uploads'
 
@@ -115,6 +115,287 @@ class FileController extends Controller {
     this.ctx.attachment(result.file_name)
     this.ctx.set('Content-Type', 'application/octet-stream')
     this.ctx.body = fs.createReadStream(result.file_path)
+  }
+
+  // 批量预约演示导出
+  async batchExportDemonstrate() {
+    const { query } = this.ctx.request
+    const { pmCodes = '' } = query
+    return Promise.all(
+      pmCodes.split(',').map(async (info) => {
+        return await this.ctx.service.webService.getDemonstrateDetail(info)
+      }),
+    ).then(async (result) => {
+      const newResult = result.map((info) => {
+        return {
+          name: info.name,
+          phone: info.phone,
+          position: info.position,
+          company_name: info.company_name,
+          company_address: info.company_address,
+          industry: info.industry,
+          create_time: info.create_time
+            ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+          deal_result: info.deal_result,
+
+          is_deal: Number(info.is_deal) === 0 ? '未处理' : '已处理',
+        }
+      })
+      const header = {
+        name: '姓名',
+        phone: '手机号',
+        position: '职务',
+        company_name: '公司名称',
+        company_address: '公司地址',
+        industry: '归属',
+        create_time: '提交时间',
+        is_deal: '状态',
+        deal_result: '处理结果',
+      }
+      this.exportXLSX('预约演示名单', '预约演示名单', header, newResult)
+    })
+  }
+
+  // 批量预约演示导出
+  async batchExportPartner() {
+    const { query } = this.ctx.request
+    const { pmCodes = '' } = query
+    return Promise.all(
+      pmCodes.split(',').map(async (info) => {
+        return await this.ctx.service.webService.getPartnerDetail(info)
+      }),
+    ).then(async (result) => {
+      const newResult = result.map((info) => {
+        return {
+          name: info.name,
+          phone: info.phone,
+          position: info.position,
+          company_name: info.company_name,
+          company_phone: info.company_phone,
+          create_time: info.create_time
+            ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+          deal_result: info.deal_result,
+
+          is_deal: Number(info.is_deal) === 0 ? '未处理' : '已处理',
+        }
+      })
+      const header = {
+        name: '姓名',
+        phone: '手机号',
+        position: '职务',
+        company_name: '公司名称',
+        company_phone: '公司电话',
+        create_time: '提交时间',
+        is_deal: '状态',
+        deal_result: '处理结果',
+      }
+      this.exportXLSX('合作伙伴名单', '合作伙伴名单', header, newResult)
+    })
+  }
+
+  // 批量试用申请导出
+  async batchExportTrial() {
+    const { query } = this.ctx.request
+    const { pmCodes = '' } = query
+    return Promise.all(
+      pmCodes.split(',').map(async (info) => {
+        return await this.ctx.service.webService.getTrialDetail(info)
+      }),
+    ).then(async (result) => {
+      const newResult = result.map((info) => {
+        return {
+          name: info.name,
+          phone: info.phone,
+          position: info.position,
+          company_name: info.company_name,
+          company_size: info.company_size,
+          email: info.email,
+          create_time: info.create_time
+            ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+            : '',
+          deal_result: info.deal_result,
+
+          is_deal: Number(info.is_deal) === 0 ? '未处理' : '已处理',
+        }
+      })
+      const header = {
+        name: '姓名',
+        phone: '手机号',
+        position: '职务',
+        company_name: '公司名称',
+        company_size: '公司规模',
+        email: '邮箱',
+        create_time: '提交时间',
+        is_deal: '状态',
+        deal_result: '处理结果',
+      }
+      this.exportXLSX('试用申请名单', '试用申请名单', header, newResult)
+    })
+  }
+
+  // 批量预约演示导出搜索
+  async batchExportSearchDemonstrate() {
+    const { query } = this.ctx.request
+    const { phone, isDeal, dealResult, startTime = '', endTime = '' } = query
+
+    const data = await this.ctx.service.webService.getDemonstrateListAll({
+      phone,
+      is_deal: isDeal,
+      deal_result: dealResult,
+      startTime,
+      endTime,
+    })
+
+    const newResult = data.map((info) => {
+      return {
+        name: info.name,
+        phone: info.phone,
+        position: info.position,
+        company_name: info.company_name,
+        company_address: info.company_address,
+        industry: info.industry,
+        create_time: info.create_time
+          ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        deal_result: info.deal_result,
+
+        is_deal: Number(info.is_deal) === 0 ? '未处理' : '已处理',
+      }
+    })
+
+    const header = {
+      name: '姓名',
+      phone: '手机号',
+      position: '职务',
+      company_name: '公司名称',
+      company_address: '公司地址',
+      industry: '归属',
+      create_time: '提交时间',
+      is_deal: '状态',
+      deal_result: '处理结果',
+    }
+    this.exportXLSX('预约演示名单', '预约演示名单', header, newResult)
+  }
+
+  // 批量合作伙伴导出搜索
+  async batchExportSearchPartner() {
+    const { query } = this.ctx.request
+    const { phone, isDeal, dealResult, startTime = '', endTime = '' } = query
+
+    const data = await this.ctx.service.webService.getPartnerListAll({
+      phone,
+      is_deal: isDeal,
+      deal_result: dealResult,
+      startTime,
+      endTime,
+    })
+
+    const newResult = data.map((info) => {
+      return {
+        name: info.name,
+        phone: info.phone,
+        position: info.position,
+        company_name: info.company_name,
+        company_phone: info.company_phone,
+        create_time: info.create_time
+          ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        deal_result: info.deal_result,
+
+        is_deal: Number(info.is_deal) === 0 ? '未处理' : '已处理',
+      }
+    })
+
+    const header = {
+      name: '姓名',
+      phone: '手机号',
+      position: '职务',
+      company_name: '公司名称',
+      company_phone: '公司电话',
+      create_time: '提交时间',
+      is_deal: '状态',
+      deal_result: '处理结果',
+    }
+    this.exportXLSX('合作伙伴名单', '合作伙伴名单', header, newResult)
+  }
+
+  // 批量试用申请导出搜索
+  async batchExportSearchTrial() {
+    const { query } = this.ctx.request
+    const { phone, isDeal, dealResult, startTime = '', endTime = '' } = query
+
+    const data = await this.ctx.service.webService.getTrialListAll({
+      phone,
+      is_deal: isDeal,
+      deal_result: dealResult,
+      startTime,
+      endTime,
+    })
+
+    const newResult = data.map((info) => {
+      return {
+        name: info.name,
+        phone: info.phone,
+        position: info.position,
+        company_name: info.company_name,
+        company_size: info.company_size,
+        email: info.email,
+        create_time: info.create_time
+          ? moment(info.create_time).format('YYYY-MM-DD HH:mm:ss')
+          : '',
+        deal_result: info.deal_result,
+
+        is_deal: Number(info.is_deal) === 0 ? '未处理' : '已处理',
+      }
+    })
+
+    const header = {
+      name: '姓名',
+      phone: '手机号',
+      position: '职务',
+      company_name: '公司名称',
+      company_size: '公司规模',
+      email: '邮箱',
+      create_time: '提交时间',
+      is_deal: '状态',
+      deal_result: '处理结果',
+    }
+    this.exportXLSX('试用申请名单', '试用申请名单', header, newResult)
+  }
+
+  // excel表格下载
+  async exportXLSX(fileName, sheetName, header, data) {
+    // 生成workbook
+    const workbook = xlsx.utils.book_new()
+    // 插入表头
+    const headerData = [header]
+
+    data.forEach((info) => {
+      headerData.push(info)
+    })
+
+    // 生成worksheet
+    const worksheet = xlsx.utils.json_to_sheet(headerData, {
+      skipHeader: true,
+    })
+    // 组装
+    xlsx.utils.book_append_sheet(workbook, worksheet, sheetName)
+
+    // 返回数据流
+    // @ts-ignore
+    this.ctx.set('Content-Type', 'application/vnd.openxmlformats')
+    // @ts-ignore
+    this.ctx.set(
+      'Content-Disposition',
+      "attachment;filename*=UTF-8' '" + encodeURIComponent(fileName) + '.xlsx',
+    )
+    // @ts-ignore
+    this.ctx.body = await xlsx.write(workbook, {
+      bookType: 'xlsx',
+      type: 'buffer',
+    })
   }
 }
 

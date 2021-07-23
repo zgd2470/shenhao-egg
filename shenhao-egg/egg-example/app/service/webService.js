@@ -549,35 +549,15 @@ class WebService extends Service {
   }) {
     let sqlWhere = 'deleted = 0'
 
-    const where = {
-      deleted: 0,
-    }
-
-    const columns = [
-      'pm_code',
-      'name',
-      'phone',
-      'position',
-      'company_name',
-      'company_address',
-      'industry',
-      'is_deal',
-      'create_time',
-      'deal_result',
-    ]
-
     if (phone) {
-      where.phone = phone
       sqlWhere += ` and phone='${phone}'`
     }
 
     if (is_deal) {
-      where.is_deal = is_deal
       sqlWhere += ` and is_deal='${is_deal}'`
     }
 
     if (deal_result) {
-      where.deal_result = deal_result
       sqlWhere += ` and deal_result='${deal_result}'`
     }
 
@@ -588,18 +568,11 @@ class WebService extends Service {
       sqlWhere += ` and create_time <='${endTime}'`
     }
 
-    const option = {
-      columns,
-      where,
-      orders: [['create_time', 'desc']],
-      limit: Number(pageSize), // 返回数据量
-      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
-    }
-
     const list =
       (await this.app.mysql.query(
-        `select * FROM demonstrate_table where ${sqlWhere}`,
-        option,
+        `select * FROM demonstrate_table where ${sqlWhere} order by create_time desc limit ${
+          (Number(current) - 1) * Number(pageSize)
+        },${Number(pageSize)}`,
       )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM demonstrate_table where ${sqlWhere} `,
@@ -609,6 +582,67 @@ class WebService extends Service {
       total: JSON.parse(JSON.stringify(total))[0].total,
       list: list,
     }
+  }
+
+  // 预约演示列表
+  async getDemonstrateListAll({
+    phone,
+    is_deal,
+    deal_result,
+    startTime,
+    endTime,
+  }) {
+    let sqlWhere = 'deleted = 0'
+
+    if (phone) {
+      sqlWhere += ` and phone='${phone}'`
+    }
+
+    if (is_deal) {
+      sqlWhere += ` and is_deal='${is_deal}'`
+    }
+
+    if (deal_result) {
+      sqlWhere += ` and deal_result='${deal_result}'`
+    }
+
+    if (startTime) {
+      sqlWhere += ` and create_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and create_time <='${endTime}'`
+    }
+
+    const list =
+      (await this.app.mysql.query(
+        `select * FROM demonstrate_table where ${sqlWhere} order by create_time desc`,
+      )) || []
+
+    return JSON.parse(JSON.stringify(list))
+  }
+
+  // 获取预约演示详情
+  async getDemonstrateDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: [
+        'pm_code',
+        'name',
+        'phone',
+        'position',
+        'company_name',
+        'company_address',
+        'industry',
+        'is_deal',
+        'create_time',
+        'deal_result',
+      ],
+    }
+    const result =
+      (await this.app.mysql.select('demonstrate_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
   }
 
   // 处理预约演示
@@ -646,34 +680,15 @@ class WebService extends Service {
   }) {
     let sqlWhere = 'deleted = 0'
 
-    const where = {
-      deleted: 0,
-    }
-
-    const columns = [
-      'pm_code',
-      'name',
-      'phone',
-      'position',
-      'company_name',
-      'company_phone',
-      'is_deal',
-      'create_time',
-      'deal_result',
-    ]
-
     if (phone) {
-      where.phone = phone
       sqlWhere += ` and phone='${phone}'`
     }
 
     if (is_deal) {
-      where.is_deal = is_deal
       sqlWhere += ` and is_deal='${is_deal}'`
     }
 
     if (deal_result) {
-      where.deal_result = deal_result
       sqlWhere += ` and deal_result='${deal_result}'`
     }
 
@@ -684,18 +699,11 @@ class WebService extends Service {
       sqlWhere += ` and create_time <='${endTime}'`
     }
 
-    const option = {
-      columns,
-      where,
-      orders: [['create_time', 'desc']],
-      limit: Number(pageSize), // 返回数据量
-      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
-    }
-
     const list =
       (await this.app.mysql.query(
-        `select * FROM partner_table where ${sqlWhere}`,
-        option,
+        `select * FROM partner_table where ${sqlWhere} order by create_time desc limit ${
+          (Number(current) - 1) * Number(pageSize)
+        },${Number(pageSize)}`,
       )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM partner_table where ${sqlWhere} `,
@@ -705,6 +713,59 @@ class WebService extends Service {
       total: JSON.parse(JSON.stringify(total))[0].total,
       list: list,
     }
+  }
+
+  // 合作伙伴列表
+  async getPartnerListAll({ phone, is_deal, deal_result, startTime, endTime }) {
+    let sqlWhere = 'deleted = 0'
+
+    if (phone) {
+      sqlWhere += ` and phone='${phone}'`
+    }
+
+    if (is_deal) {
+      sqlWhere += ` and is_deal='${is_deal}'`
+    }
+
+    if (deal_result) {
+      sqlWhere += ` and deal_result='${deal_result}'`
+    }
+
+    if (startTime) {
+      sqlWhere += ` and create_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and create_time <='${endTime}'`
+    }
+
+    const list =
+      (await this.app.mysql.query(
+        `select * FROM partner_table where ${sqlWhere} order by create_time desc`,
+      )) || []
+
+    return JSON.parse(JSON.stringify(list))
+  }
+
+  // 获取合作伙伴详情
+  async getPartnerDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: [
+        'pm_code',
+        'name',
+        'phone',
+        'position',
+        'company_name',
+        'company_phone',
+        'is_deal',
+        'create_time',
+        'deal_result',
+      ],
+    }
+    const result = (await this.app.mysql.select('partner_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
   }
 
   // 处理合作伙伴
@@ -719,6 +780,7 @@ class WebService extends Service {
       { is_deal: '1', deal_result },
       options,
     )
+    console.log(result)
     return result.affectedRows === 1
   }
 
@@ -752,35 +814,15 @@ class WebService extends Service {
   }) {
     let sqlWhere = 'deleted = 0'
 
-    const where = {
-      deleted: 0,
-    }
-
-    const columns = [
-      'pm_code',
-      'name',
-      'phone',
-      'position',
-      'company_name',
-      'company_size',
-      'email',
-      'is_deal',
-      'create_time',
-      'deal_result',
-    ]
-
     if (phone) {
-      where.phone = phone
       sqlWhere += ` and phone='${phone}'`
     }
 
     if (is_deal) {
-      where.is_deal = is_deal
       sqlWhere += ` and is_deal='${is_deal}'`
     }
 
     if (deal_result) {
-      where.deal_result = deal_result
       sqlWhere += ` and deal_result='${deal_result}'`
     }
 
@@ -791,18 +833,11 @@ class WebService extends Service {
       sqlWhere += ` and create_time <='${endTime}'`
     }
 
-    const option = {
-      columns,
-      where,
-      orders: [['create_time', 'desc']],
-      limit: Number(pageSize), // 返回数据量
-      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
-    }
-
     const list =
       (await this.app.mysql.query(
-        `select * FROM trial_table where ${sqlWhere}`,
-        option,
+        `select * FROM trial_table where ${sqlWhere} order by create_time desc limit ${
+          (Number(current) - 1) * Number(pageSize)
+        },${Number(pageSize)}`,
       )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM trial_table where ${sqlWhere} `,
@@ -814,6 +849,37 @@ class WebService extends Service {
     }
   }
 
+  // 试用申请列表
+  async getTrialListAll({ phone, is_deal, deal_result, startTime, endTime }) {
+    let sqlWhere = 'deleted = 0'
+
+    if (phone) {
+      sqlWhere += ` and phone='${phone}'`
+    }
+
+    if (is_deal) {
+      sqlWhere += ` and is_deal='${is_deal}'`
+    }
+
+    if (deal_result) {
+      sqlWhere += ` and deal_result='${deal_result}'`
+    }
+
+    if (startTime) {
+      sqlWhere += ` and create_time >='${startTime}'`
+    }
+    if (endTime) {
+      sqlWhere += ` and create_time <='${endTime}'`
+    }
+
+    const list =
+      (await this.app.mysql.query(
+        `select * FROM trial_table where ${sqlWhere} order by create_time desc`,
+      )) || []
+
+    return JSON.parse(JSON.stringify(list))
+  }
+
   // 查询手机号是否提交过
   async queryTrial(phone) {
     const result = await this.app.mysql.get('trial_table', {
@@ -822,6 +888,29 @@ class WebService extends Service {
     })
 
     return JSON.parse(JSON.stringify(result))
+  }
+
+  // 获取试用申请详情
+  async getTrialDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: [
+        'pm_code',
+        'name',
+        'phone',
+        'position',
+        'company_name',
+        'company_size',
+        'email',
+        'is_deal',
+        'create_time',
+        'deal_result',
+      ],
+    }
+    const result = (await this.app.mysql.select('trial_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
   }
 
   // 处理试用申请
@@ -1269,13 +1358,12 @@ class WebService extends Service {
       limit: Number(pageSize), // 返回数据量
       offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
     }
-    sqlWhere += ` order by create_time desc limit ${
-      (Number(current) - 1) * Number(pageSize)
-    },${Number(pageSize)}`
 
     const list =
       (await this.app.mysql.query(
-        `select * FROM news_table where ${sqlWhere} `,
+        `select * FROM news_table where ${sqlWhere} order by create_time desc limit ${
+          (Number(current) - 1) * Number(pageSize)
+        },${Number(pageSize)}`,
       )) || []
     const total = await this.app.mysql.query(
       `select COUNT(1) as total FROM news_table where ${sqlWhere} `,
@@ -1350,6 +1438,115 @@ class WebService extends Service {
     )
 
     return JSON.parse(JSON.stringify(result))
+  }
+
+  // 新增活动
+  async setActivity(info, tags) {
+    if (info.pm_code) {
+      // 编辑
+      const options = {
+        where: {
+          pm_code,
+        },
+      }
+      const newInfo = await this.ctx.service.fillUtil.fillModifyRecord(info)
+      const result = await this.app.mysql.update(
+        'activity_table',
+        newInfo,
+        options,
+      )
+      return result.affectedRows === 1
+    }
+    if (!pm_code) {
+      // 新增
+      const newInfo = await this.ctx.service.fillUtil.fillNewRecord(info)
+      const result = await this.app.mysql.insert('activity_table', newInfo)
+      return result.affectedRows === 1
+    }
+  }
+
+  // 获取活动
+  async getActivityList({ title = '', current = 1, pageSize = 10 }) {
+    let sqlWhere = 'deleted = 0'
+
+    const where = {
+      deleted: 0,
+    }
+
+    const columns = [
+      'pm_code',
+      'img_pm_code',
+      'title',
+      'introduction',
+      'course',
+      'place',
+      'activity_date',
+      'start_time',
+      'end_time',
+      'article_url',
+    ]
+
+    if (title) {
+      where.title = title
+      sqlWhere += ` and title='${title}'`
+    }
+
+    const option = {
+      columns,
+      where,
+      orders: [['create_time', 'desc']],
+      limit: Number(pageSize), // 返回数据量
+      offset: (Number(current) - 1) * Number(pageSize), // 数据偏移量
+    }
+    const list = (await this.app.mysql.select('activity_table', option)) || []
+    const total = await this.app.mysql.query(
+      `select COUNT(1) as total FROM activity_table where ${sqlWhere} `,
+    )
+
+    return {
+      total: JSON.parse(JSON.stringify(total))[0].total,
+      list: JSON.parse(JSON.stringify(list)),
+    }
+  }
+
+  // 删除活动
+  async deleteActivity(pmCode) {
+    const options = {
+      where: {
+        pm_code: pmCode,
+      },
+    }
+    const result = await this.app.mysql.update(
+      'activity_table',
+      { deleted: 1 },
+      options,
+    )
+    return result.affectedRows === 1
+  }
+
+  // 获取活动得到详情
+  async getActivityDetail(pmCode) {
+    const option = {
+      where: {
+        pm_code: pmCode,
+      },
+      columns: [
+        'pm_code',
+        'img_pm_code',
+        'title',
+        'introduction',
+        'course',
+        'place',
+        'activity_date',
+        'start_time',
+        'end_time',
+        'article_url',
+        'result_content',
+        'result_img',
+      ],
+    }
+    const result = (await this.app.mysql.select('activity_table', option)) || []
+    return JSON.parse(JSON.stringify(result))[0]
   }
 }
 module.exports = WebService
